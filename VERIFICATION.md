@@ -1,39 +1,44 @@
-# Verification — 3 November 2026
+# Verification — Brief 3, 3 November 2026
 
-Headline: **Dynamics 365 CE & Power Platform Solution Architect.** Supporting line: “Architecture and hands-on engineering for regulated, high-stakes CRM programmes.”
+Brief 3 is applied on top of the existing, uncommitted Brief 2 edits.
 
-## Passed
+## Brief 3 checks
 
-- `html-validate` 10.17.0: `index.html` and `404.html`, zero errors or warnings after fixes. No relaxed validation configuration.
-- `node --check assets/js/main.js`: valid syntax.
-- `python3 scripts/verify.py`: ten local file references exist, internal anchors resolve, IDs are unique, Person JSON-LD parses without a telephone field, social PNG is 1200 × 630, and private-number signatures are absent from public files. The explicitly requested Microsoft Learn `#` placeholder is allowed.
-- Separate recursive text-file privacy scan: no private-number signature outside the permitted PDF. Source documents are not included in the site repository.
-- Downloadable PDF is byte-for-byte identical to the supplied `Gopinath_Gurusamy.pdf`.
-- HTTP checks: index, CSS, JavaScript, PDF, social PNG and 404 document each returned 200. Project-prefixed index and every linked asset returned 200. A missing nested project URL returned the custom page with 404 status, correct styles and a working home link.
-- Connected Chrome visual/layout checks at widths 360, 390, 560, 561, 768, 800, 801, 1024 and 1440; also inspected at 1920. No horizontal page overflow. Both themes inspected, including the mobile hero, desktop case study and contact layouts.
-- Theme switch changes the palette and accessible label; selected light mode persists after reload. Baseline CSS also follows the system theme without JavaScript.
-- Sticky header and active Work/Contact links checked after smooth scrolling. Scroll-revealed case study becomes visible at its destination. Source stats are rendered as final values before any animation and retain authoritative accessible values during counting.
-- Keyboard: first Tab exposes the skip link with a visible focus outline; Enter moves focus to `main`. No positive tabindex or keyboard trap is introduced.
-- Copy-email click reports success. Isolated local fixtures also checked denied clipboard access and blocked localStorage; feedback and the theme switch remain usable.
-- No-enhancement-script fixture: content and source stats remain visible, PDF link remains available, and unavailable theme/copy buttons stay hidden.
-- Simulated reduced-motion fixture: no reveal hiding or stat counting; all final stats remain visible. CSS `prefers-reduced-motion` removes smooth scrolling and transition durations. The operating system preference itself was not changed.
-- Axe-core WCAG A/AA audit: zero violations on the portfolio in light and dark desktop themes, zero on dark mobile, and zero on the light error page. There were 26 passing rule groups on the portfolio and 17 on the error page. Manual-review items concerned decorative symbol glyphs and the mobile blueprint background. Text palette pairs have minimum contrast of 8.18:1 in dark and 5.57:1 in light; the faint blueprint grid was visually inspected. This is targeted QA, not a certification of complete WCAG conformance.
-- Social PNG rendered from the editable local SVG and visually inspected. No external fonts, CDN assets or runtime packages.
+- `python3 scripts/verify.py`: passes 11 local asset references, anchors with no placeholder hrefs, the two supplied Microsoft Learn credential-page URLs, all five JSON-LD credential entries, JPEG headshot presence/markup, social PNG dimensions and privacy scan. No phone numbers found in repo text files; the previously permitted CV PDF remains excluded from that text scan.
+- `html-validate` 10.17.0: `index.html` and `404.html` pass with zero errors or warnings and no relaxed rules.
+- `node --check assets/js/main.js` and `git diff --check`: pass.
+- Isolated verifier fixtures pass for the valid site and reject a missing headshot, a placeholder href and a phone-like number. Fixtures were created outside the repository and removed afterward.
+- `sips` produced `assets/img/headshot.jpg` from the supplied PNG at quality 82. Dimensions are 400 × 400; size is 42 KB (below 80 KB). `cwebp` is unavailable, so the `<picture>` contains the JPEG fallback only.
+- Connected Chrome: visually inspected dark and light themes at 360 × 800 and 1440 × 900, plus dark at 768 × 1024. No horizontal page overflow at these widths. The portrait loads at its natural 400 × 400 dimensions and displays at 160px beside the mobile headline, 180px on tablet and 240px on desktop. The accent border and PL-600 / AB-100 pills remain legible in both themes.
+- At 360px, the portrait starts about 162px from the top; both full hero credential badges end by about 604px, inside the first 800px screen. Desktop badges also remain on the first screen. Saved the mobile preview at `qa-artifacts/brief3-mobile.png` (ignored by git).
+- Headless Chrome could not launch under the filesystem sandbox, so layout QA used the connected Chrome browser.
+- No legacy credential share URLs or lone-hash hrefs remain in repository text. README now documents the installed photo, replacement steps and both supplied credential-page URLs. The existing Brief 2 social image is retained, as permitted by Brief 3.
+- No commit, push or deployment was performed.
 
-## Source review
+The Brief 2 report below records the prior baseline; Brief 3 supersedes its credential URLs and portrait placeholder.
 
-All biography, skills, experience, case studies, education and credential copy was derived from the five allowed source files. The source wording supports the qualitative outcomes. Regulator and healthcare clients remain anonymous. Date conflicts follow the brief: 13+ years from September 2013, Central Bank through April 2021, OpenSky start shown as 2017. No invented client logos, testimonials or performance metrics. Current certification validity was not independently checked; no issue/expiry dates are displayed.
+## Brief 2 baseline — 3 November 2026
 
-## Environment limitations and handoff
+Positioning: **Dynamics 365 CE & Power Platform Solution Architect · Technical Lead · Copilot Studio & AI Agents.** PL-600 and AB-100 are featured immediately below this sub-line, in the side-panel footer and in the social image.
 
-- Port 8080 belongs to an existing Caddy service. It was left running. Python preview attempts on other ports did not become ready; verification used a temporary Node static server on loopback port 8090, including a simulated `/gopinath-portfolio/` mount. Owned preview processes were stopped after verification.
-- Lighthouse was installed and attempted with the installed Google Chrome. Both the direct headless launch and Lighthouse failed under the sandbox (Chrome launch/Crashpad restrictions; Lighthouse could not obtain a debugging port). **No Lighthouse scores are claimed.** Connected Chrome was used for the browser checks above.
-- The workspace denies writes to `.git`; standard initialization in the requested folder failed with “Operation not permitted.” Local commit metadata is stored in `/private/tmp/gopinath-portfolio-local-history/.git` and the completed local commit is preserved as `.local-history/initial-portfolio.bundle`. See README for inspection and restoration without adding a remote. The website itself remains in the requested folder.
-- No publication, remote creation, push or external integration was performed.
-- An unexpected second set of CSS/JS/404 edits appeared during implementation. Those versions were saved under `/private/tmp/gopinath-portfolio-qa/unexpected-versions/`; the delivered page, stylesheet and script were reconciled and checked together.
+### Checks completed for Brief 2
 
-## Content TODO
+- `python3 scripts/verify.py`: passes ten local asset references, in-page anchors, duplicate IDs, supplied Microsoft Learn links, Person JSON-LD with five `EducationalOccupationalCredential` entries, PNG dimensions and the public-file privacy scan.
+- `html-validate` 10.17.0: `index.html` and `404.html` pass with zero errors or warnings and no relaxed rules.
+- `node --check assets/js/main.js`: passes. The existing enhancement script required no changes.
+- `git diff --check`: passes.
+- Isolated verifier fixtures confirm that the exact supplied Learn links pass, while a lone hash href, missing anchor, unformatted or formatted phone-like number, unknown Learn URL, and invented PL-600 credential URL fail. Test fixtures stayed outside the website.
+- HTTP checks: index, CSS, JS, SVG, PNG, CV and the 404 document return 200 at both the server root and a simulated `/gopinath-portfolio/` prefix.
+- The CV remains byte-for-byte identical to `~/portfolio-src/Gopinath_Gurusamy.pdf`. Its original contact details remain confined to that previously permitted PDF; no phone number was added to the page, metadata, image or documentation.
+- The 1200 × 630 PNG was regenerated from the editable SVG and visually inspected. It shows PL-600 + AB-100, Microsoft Certified, and Copilot Studio & AI agents.
+- Connected Chrome at 360 × 800 and 1440 × 900: both hero badges are fully visible on the first screen, with no horizontal page overflow. Four services form a desktop row and stack on mobile. PL-600 and AB-100 occupy the first certification row, with AB-100 and AB-620 verification links. Light and dark themes inspected.
 
-- Supply the verified public Microsoft Learn profile URL to replace the clearly labelled placeholder.
-- Optional: replace the initials avatar at the single `HEADSHOT SWAP` comment with a headshot.
-- Optional: replace the supplied CV with a phone-free PDF; only that permitted PDF contains private contact information.
+### Brief 2 content and scope
+
+- All added professional copy comes from `CODEX_BRIEF_2.md`, `profile_export_v2.txt` and `linkedin_update.md` in `~/portfolio-src`. The original brief's rules for experience totals and conflicting dates remain in force.
+- About includes design authority, Dataverse data models, business units/teams/roles, GDPR/DSAR, Azure Functions/Logic Apps/Web API, Azure DevOps ALM/CI/CD with managed solutions, and Copilot Studio & AI agents.
+- Contract services cover fractional architecture, platform assessments/health checks, migrations and Copilot Studio/AI agents. No specific AI agent project, pricing, follower count or recommendation was added.
+- Availability follows the supplied LinkedIn copy: full AU/NZ business hours, UK/EU mornings, and no notice period for contracts.
+- At the Brief 2 baseline, AB-100 and AB-620 used the verification URLs supplied in Brief 2; Brief 3 replaces these with the supplied credential-page URLs. They were not independently fetched in this update. No verification link is invented for another credential; only those two credentials have JSON-LD URLs. The placeholder and its TODO/CSS were removed.
+- Browser checks are targeted layout and interaction QA, not a claim of complete WCAG certification. No new Lighthouse score is claimed.
+- Changes remain local. No commit, push or deployment was performed.
