@@ -1,78 +1,47 @@
-# Gopinath Gurusamy — portfolio
+# Gopinath Gurusamy — architecture résumé
 
-A single-page, static portfolio for Dynamics 365 CE & Power Platform solution architecture, technical leadership and remote B2B engagements, with PL-600 and AB-100 featured and Copilot Studio & AI agents included. Plain HTML, CSS and JavaScript; no build, runtime dependencies, external fonts or CDN requests.
+A static portfolio for a Dynamics 365 CE / Power Platform Solution Architect and Technical Lead. The site preserves the factual content of the previous portfolio and presents services, expertise, four engagements, five experience entries, certifications, writing, education, languages and contact details.
 
-## Preview
+## Stack and design
 
-From this directory:
+Plain semantic HTML, custom CSS and small vanilla JavaScript enhancements. No framework runtime, remote fonts, analytics, backend, package installation or deployment build is required. All production assets are local, with relative paths for GitHub Pages project hosting. CSS and JavaScript use `?v=8`.
 
-```sh
-python3 -m http.server 8090 --bind 127.0.0.1
-```
+The design is a hand-port and substantial adaptation of [Astrofy by Manuel Ernesto Garcia](https://github.com/manuelernestog/astrofy): portrait rail, résumé timeline, rounded cards and light/dark surface hierarchy. The upstream [MIT license](https://github.com/manuelernestog/astrofy/blob/main/LICENSE), copyright 2022 Manuel Ernesto Garcia, is preserved verbatim in [LICENSE-TEMPLATE.md](LICENSE-TEMPLATE.md). A small voluntary footer credit links to the template. Typography, palette, responsive behavior and all portfolio content are customized; no sample claims or template profile images are used.
 
-Open `http://127.0.0.1:8090/`. Use port 8090 for local QA. Stop the server with Ctrl-C.
+Eight candidate evaluations and source snapshots are in the companion workspace: `~/portfolio-src/TEMPLATE_RESEARCH.md` and `~/portfolio-src/templates/`. That workspace also contains the pre-redesign HTML backup and reproducible OG-image generator. It is not needed to serve the site.
 
-## Edit content
+## Files
 
-- `index.html`: all visible copy, experience, case studies, links, credentials and Person JSON-LD. The section order follows the supplied brief.
-- `assets/css/styles.css`: colour tokens, typography, responsive layout, light/dark themes and reduced-motion rules.
-- `assets/js/main.js`: theme preference (`gg-theme` in localStorage), clipboard feedback, scroll reveals, stat counters and active navigation. Content, downloads and navigation remain usable without JavaScript.
-- `assets/resume/Gopinath_Gurusamy_Resume.pdf`: downloadable CV, copied unchanged from the supplied PDF.
-- `assets/img/og-image.svg`: editable source for the 1200 × 630 PNG social preview. Update the PNG after editing the SVG.
-- `assets/img/headshot.jpg`: supplied 400 × 400 portrait, compressed with macOS `sips` at JPEG quality 82.
-- `favicon.svg`: initials favicon.
-- `404.html`, `robots.txt`, `sitemap.xml`, `.nojekyll`: static hosting support.
-- `scripts/verify.py`: repeatable asset, anchor, metadata, image-dimension and privacy checks.
-- `VERIFICATION.md`: recorded checks and any environment limitations.
+- `index.html`: portfolio and SEO metadata, including five structured Microsoft credentials.
+- `404.html`: matching error page; a small base-resolution script handles nested project-path URLs.
+- `assets/css/styles.css`: responsive layout, themes, focus states and reduced-motion rules.
+- `assets/js/main.js`: saved theme preference, email-copy feedback, current-section navigation and the flows counter.
+- `assets/img/headshot.jpg`: original portrait; `og-image.png` is the regenerated 1200 × 630 social image, with an editable SVG companion.
+- `assets/resume/Gopinath_Gurusamy_Resume.pdf`: existing CV, linked once from the header.
+- `scripts/verify.py`: local-reference, credential, content, image and privacy checks.
+- `qa-artifacts/v2-*`: current redesign evidence. Other artifact names belong to earlier versions.
 
-Keep claims grounded in the five supplied source files: `resume.txt`, `profile_export_v2.txt`, `linkedin_update.md`, `profile_current.md` and `linkedin_export.txt`. They are deliberately not copied into the public repository. The brief resolves differences: use 13+ years from the September 2013 start, April 2021 for the Central Bank end date, and “2017” for the OpenSky start. Employer names are permitted; the regulator and healthcare clients remain anonymous. Outcomes are qualitative and source-backed. Certifications are listed without issue/expiry dates. Brief 3 supplies the exact Microsoft Learn credential URLs for AB-100 and AB-620; only those credentials have verification links, including in Person JSON-LD. PL-600 and AB-100 are featured in the two left-column hero cards and social image. The About services row comes from the supplied LinkedIn copy. The hero location reads “Based in India · Remote B2B contractor”.
+PL-600 is plain text. The two supplied Microsoft Learn verification destinations are retained. Phone contact information is excluded from site text; the existing CV is the sole exception.
 
-**Privacy:** the public page, metadata and documentation contain no phone number. The downloadable CV itself contains a phone number, as permitted by the brief. Replace it with a phone-free PDF at the same path if desired. Do not copy private contact information from the source files into the website.
+## Preview and verify
 
-## Swap the headshot
-
-The supplied portrait is installed at `assets/img/headshot.jpg` (400 × 400, about 42 KB). To replace it, prepare a square 400 × 400 source and run:
+From the repository root:
 
 ```sh
-sips -s format jpeg -s formatOptions 82 /path/to/replacement.png --out assets/img/headshot.jpg
-```
-
-The hero uses `<picture>` with a JPEG fallback, explicit dimensions, eager loading and high fetch priority. The `.headshot` rule sets the rounded accent border and `object-position: center 20%`; adjust the position if the replacement needs a different crop. The portrait fills the desktop and tablet card’s content width, aligned with its text and chip grid. A small embedded style in `index.html` constrains its width even if the external stylesheet fails to load. On narrow screens the 160px portrait sits beside the headline. The profile card contains the heading, portrait, delivery statement and architecture chips, with bottom padding matching its side padding. Credentials remain in the two left-column cards. The CV download appears only in the top header; Get in touch is the primary hero action. CSS and local script URLs use `?v=7` on both HTML pages to refresh cached assets. `cwebp` was unavailable for this update, so only JPEG is included. If you later generate `assets/img/headshot.webp`, add a `<source type="image/webp" srcset="assets/img/headshot.webp">` before the JPEG `<img>` inside the existing `<picture>`.
-
-## Credential links
-
-Only these supplied Microsoft Learn credential URLs are used in the HTML and Person JSON-LD, and accepted by `scripts/verify.py`:
-
-- AB-100: https://learn.microsoft.com/en-us/users/gopinathgurusamy-9343/credentials/71c8c88020980655
-- AB-620: https://learn.microsoft.com/en-us/users/gopinathgurusamy-9343/credentials/33c24ca4ad0be38e
-
-The hero presents PL-600 as plain text and AB-100 as a link with a trailing arrow. Both use literal spaces and middle-dot separators so they remain readable without CSS. The separator after “Microsoft Certified” sits in an `sr-only` span, preventing a visible trailing dot when styled. Other grouped labels, chips and certification cards also include real HTML whitespace. Do not add verification links for the other credentials without a supplied source.
-
-## Verify
-
-```sh
+python3 -m http.server 8092 --bind 127.0.0.1
 python3 scripts/verify.py
 node --check assets/js/main.js
-npx --yes html-validate index.html 404.html
+npx html-validate@10.17.0 index.html 404.html
 ```
 
-Use a writable npm cache if your default cache is unavailable, for example `npm_config_cache=/tmp/portfolio-npm-cache`. Browser QA should cover 360px, tablet and desktop widths; both themes; keyboard focus; reduced motion; clipboard success/failure; downloads; and a server rooted at the GitHub Pages project path. A single automated accessibility score does not establish full WCAG conformance.
+The companion `~/portfolio-src/serve-preview7.py` can instead run the local server with a `/gopinath-portfolio/` prefix and Pages-like nested 404 behavior. It uses the same port. Run only one preview server at a time.
 
-## Deploy later to GitHub Pages
+Themes follow the system preference until the visitor selects light or dark. The selection persists when browser storage is available. Navigation and content remain usable without JavaScript. CSS disables transitions and smooth scrolling for reduced-motion preferences. No data is submitted by the email links; they open the visitor's email app.
 
-This handoff is local only. It does not create a remote or push anything.
+The national healthcare programme figure is **100+ Power Automate flows**. The delivery stat and case study use this owner-corrected count. Its source text and accessible name retain 100+; the stat animates to 100+ when visible, with CSS loaded and reduced motion off. Without CSS, JavaScript or animation support, the final count remains readable. The about text, SEO/OG/Twitter descriptions, Person JSON-LD and social image contain no flows count to correct. `scripts/verify.py` rejects stale flows wording and checks the visible, accessible and animation values. Brief 8 Chrome evidence and refreshed light screenshots are recorded in [E2E_REPORT.md](E2E_REPORT.md).
 
-When ready, create a repository and upload or push the site yourself. In repository **Settings → Pages**, select **Deploy from a branch**, branch **main**, folder **/ (root)**. The intended URL is:
+## Deployment
 
-`https://gopinath29.github.io/gopinath-portfolio/`
+GitHub Pages serves **main / repository root** at https://gopinath29.github.io/gopinath-portfolio/. Keep `.nojekyll`, `index.html`, `404.html`, assets, favicon files, robots and sitemap at the root. There is no Actions workflow or build step to configure. Deployment occurs through the repository's existing publishing process after its owner commits and pushes the reviewed static files.
 
-All HTML asset references are relative so the project prefix is preserved. Canonical, social-image and sitemap URLs are absolute by design for search engines and social crawlers. If the repository name or domain changes, update those URLs in `index.html`, `robots.txt` and `sitemap.xml`. GitHub Pages uses a domain-root robots file; the project-level `robots.txt` is supplied, but site-wide crawler policy must be managed at the account domain root if needed.
-
-## Local changes
-
-Brief 3 builds on the existing Brief 2 edits. No commit or push was run for either update. Review the changes with:
-
-```sh
-git status --short
-git diff
-```
+This task did not commit, push or deploy. The live site is not evidence of this local redesign. See [E2E_REPORT.md](E2E_REPORT.md) and [VERIFICATION.md](VERIFICATION.md) for results and test limitations.

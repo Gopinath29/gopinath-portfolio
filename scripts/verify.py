@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check local references, anchors, structured metadata and public-file privacy."""
 from html.parser import HTMLParser
+from html import unescape
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import json
@@ -96,15 +97,40 @@ for html_file in sorted(ROOT.rglob('*.html')):
     if filename == 'index.html' and {link['href'] for link in page.credential_links} != set(VERIFICATION_URLS.values()):
         errors.append(f'{filename}: missing supplied Microsoft Learn verification links')
     if filename == 'index.html':
-        for forbidden in ('AU/NZ', 'notice period', '01 / Profile', 'panel-footer', 'portrait-credentials'):
-            if forbidden.casefold() in html.casefold():
+        # Check the named metric in context; unrelated 20+ figures are allowed.
+        plain_html = unescape(html)
+        text = re.sub(r'<[^>]+>', ' ', plain_html)
+        old_flows = r'(?<![\w])20\s*\+\s*(?:Power\s+Automate\s+)?flows\b|Power\s+Automate\s+flows[^.!?;<>]{0,80}?(?<![\w])20\s*\+'
+        if any(re.search(old_flows, value, re.I) for value in (plain_html, text)):
+            errors.append(f'{filename}: Power Automate flows must not use the old 20+ figure')
+        flows_stat = re.search(r'<dt>\s*Power Automate flows coordinated in that programme\s*</dt>\s*<dd>(.*?)</dd>', plain_html, re.S)
+        if not flows_stat or re.sub(r'<[^>]+>', '', flows_stat.group(1)).strip() != '100+':
+            errors.append(f'{filename}: flows stat must visibly contain 100+ (including without CSS/JS)')
+        if flows_stat:
+            stat = flows_stat.group(1)
+            if not all(re.search(rf'\b{attr}=[\"\']100[\"\']', stat) for attr in ('data-count', 'data-target')):
+                errors.append(f'{filename}: flows counter must target 100')
+            if not re.search(r'aria-label=[\"\']100\+ Power Automate flows[\"\']', stat):
+                errors.append(f'{filename}: flows accessible text must say 100+ Power Automate flows')
+        for forbidden in ('AU/NZ', 'notice period', 'UK & EU mornings', '01 / Profile', 'panel-footer', 'portrait-credentials'):
+            if forbidden.casefold() in unescape(html).casefold():
                 errors.append(f'{filename}: forbidden hero content {forbidden!r}')
+        if len(page.schemas) != 1:
+            errors.append(f'{filename}: expected one Person JSON-LD block')
+        hero = re.search(r'<section class="hero".*?</section>', html, re.S)
+        if not hero or any(hero.group().count(code) != 1 for code in ('PL-600', '<strong>AB-100</strong>')):
+            errors.append(f'{filename}: expected one hero credential display per featured credential')
         cv_links = [link for link in page.links if re.search(r'\bdownload\s+cv\b', link['text'], re.I)]
         if len(cv_links) != 1 or not cv_links[0]['in_header']:
             errors.append(f'{filename}: expected exactly one Download CV link, in the header')
         for link in page.links:
             if urlsplit(link['attrs'].get('href', '')).path.endswith('/Gopinath_Gurusamy_Resume.pdf') and not link['in_header']:
                 errors.append(f'{filename}: CV link outside the header')
+        for link in page.links:
+            if 'PL-600' in link['text'] or 'PL-600' in link['attrs'].get('aria-label', ''):
+                errors.append(f'{filename}: PL-600 must be plain text, never linked')
+        if re.search(r'>\s*0[1-9](?:\s*/|\.)', html):
+            errors.append(f'{filename}: numbered section label')
         expected_headshot = {
             'src': 'assets/img/headshot.jpg', 'alt': 'Gopinath Gurusamy',
             'width': '400', 'height': '400', 'loading': 'eager',
@@ -114,8 +140,8 @@ for html_file in sorted(ROOT.rglob('*.html')):
             errors.append(f'{filename}: missing or incorrect hero headshot')
     for tag, attr, value in page.references:
         if (tag, attr) in (('link', 'href'), ('script', 'src')) and urlsplit(value).path in ('assets/css/styles.css', 'assets/js/main.js'):
-            if urlsplit(value).query != 'v=7':
-                errors.append(f'{filename}: expected v=7 cache-busting for {value}')
+            if urlsplit(value).query != 'v=8':
+                errors.append(f'{filename}: expected v=8 cache-busting for {value}')
     for schema in page.schemas:
         if schema.get('@type') != 'Person' or 'telephone' in schema:
             errors.append(f'{filename}: incorrect Person metadata')
@@ -162,4 +188,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local file references, anchors (no placeholder hrefs), supplied Learn links, five JSON-LD credentials, JPEG headshot, 1200 × 630 PNG, Brief 6 hero checks, header-only CV, v=7 assets and privacy scan (no phone numbers in repo text files).')
+print(f'PASS: {checked} local file references, anchors (no placeholder hrefs), supplied Learn links, five JSON-LD credentials, JPEG headshot, 1200 × 630 PNG, Brief 7 resume checks, Brief 8 flows stat (100+ visible, accessible and counter target; no stale flows figure), header-only CV, v=8 assets and privacy scan (no phone numbers in repo text files).')
