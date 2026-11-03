@@ -72,11 +72,13 @@
       const accessible = document.createElement('span');
       accessible.className = 'sr-only'; accessible.textContent = format.format(target);
       const visual = document.createElement('span'); visual.setAttribute('aria-hidden', 'true');
+      // CSS renders the animation; without it, only the source value is visible.
+      visual.className = 'counter-visual';
       counter.replaceChildren(accessible, visual);
       const start = performance.now();
       const tick = now => {
         const progress = motion.matches ? 1 : Math.min((now - start) / 950, 1);
-        visual.textContent = format.format(Math.round(target * (1 - Math.pow(1 - progress, 3))));
+        visual.dataset.value = format.format(Math.round(target * (1 - Math.pow(1 - progress, 3))));
         if (progress < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);

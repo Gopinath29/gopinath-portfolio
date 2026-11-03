@@ -23,10 +23,18 @@ class Page(HTMLParser):
         self.schemas = []
         self.credential_links = []
         self.headshots = []
+        self.links = []
+        self.current_link = None
+        self.in_header = False
         self.in_schema = False
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == 'header':
+            self.in_header = True
+        if tag == 'a':
+            self.current_link = {'attrs': attrs, 'text': '', 'in_header': self.in_header}
+            self.links.append(self.current_link)
         if 'id' in attrs:
             self.ids.append(attrs['id'])
         for key in ('href', 'src', 'poster'):
@@ -39,10 +47,16 @@ class Page(HTMLParser):
         self.in_schema = tag == 'script' and attrs.get('type') == 'application/ld+json'
 
     def handle_endtag(self, tag):
+        if tag == 'a':
+            self.current_link = None
+        if tag == 'header':
+            self.in_header = False
         if tag == 'script':
             self.in_schema = False
 
     def handle_data(self, data):
+        if self.current_link is not None:
+            self.current_link['text'] += data
         if self.in_schema:
             self.schemas.append(json.loads(data))
 
@@ -54,11 +68,12 @@ for html_file in sorted(ROOT.rglob('*.html')):
         continue
     filename = html_file.relative_to(ROOT).as_posix()
     page = Page()
-    page.feed(html_file.read_text())
+    html = html_file.read_text()
+    page.feed(html)
     if len(page.ids) != len(set(page.ids)):
         errors.append(f'{filename}: duplicate IDs')
     for tag, attr, value in page.references:
-        url = urlsplit(value)
+        url = urlsplit(value)  # Check only the path; allow cache-busting queries.
         if attr == 'href' and (not value.strip() or value.strip() == '#'):
             errors.append(f'{filename}: empty or placeholder href')
         if url.scheme or url.netloc:
@@ -81,6 +96,15 @@ for html_file in sorted(ROOT.rglob('*.html')):
     if filename == 'index.html' and {link['href'] for link in page.credential_links} != set(VERIFICATION_URLS.values()):
         errors.append(f'{filename}: missing supplied Microsoft Learn verification links')
     if filename == 'index.html':
+        for forbidden in ('AU/NZ', 'notice period', '01 / Profile', 'panel-footer', 'portrait-credentials'):
+            if forbidden.casefold() in html.casefold():
+                errors.append(f'{filename}: forbidden hero content {forbidden!r}')
+        cv_links = [link for link in page.links if re.search(r'\bdownload\s+cv\b', link['text'], re.I)]
+        if len(cv_links) != 1 or not cv_links[0]['in_header']:
+            errors.append(f'{filename}: expected exactly one Download CV link, in the header')
+        for link in page.links:
+            if urlsplit(link['attrs'].get('href', '')).path.endswith('/Gopinath_Gurusamy_Resume.pdf') and not link['in_header']:
+                errors.append(f'{filename}: CV link outside the header')
         expected_headshot = {
             'src': 'assets/img/headshot.jpg', 'alt': 'Gopinath Gurusamy',
             'width': '400', 'height': '400', 'loading': 'eager',
@@ -88,6 +112,10 @@ for html_file in sorted(ROOT.rglob('*.html')):
         }
         if len(page.headshots) != 1 or any(page.headshots[0].get(key) != value for key, value in expected_headshot.items()):
             errors.append(f'{filename}: missing or incorrect hero headshot')
+    for tag, attr, value in page.references:
+        if (tag, attr) in (('link', 'href'), ('script', 'src')) and urlsplit(value).path in ('assets/css/styles.css', 'assets/js/main.js'):
+            if urlsplit(value).query != 'v=7':
+                errors.append(f'{filename}: expected v=7 cache-busting for {value}')
     for schema in page.schemas:
         if schema.get('@type') != 'Person' or 'telephone' in schema:
             errors.append(f'{filename}: incorrect Person metadata')
@@ -110,12 +138,12 @@ for file in ROOT.rglob('*'):
     if not file.is_file() or '.git' in file.parts or file.suffix.lower() in ('.pdf', '.bundle'):
         continue
     data = file.read_bytes()
-    if any(signature in data for signature in private_signatures):
-        errors.append(f'{file.relative_to(ROOT)}: private contact signature found')
     try:
         content = data.decode('utf-8')
     except UnicodeDecodeError:
         continue
+    if any(signature in data for signature in private_signatures):
+        errors.append(f'{file.relative_to(ROOT)}: private contact signature found')
     if any(10 <= sum(char.isdigit() for char in match.group()) <= 15 for match in phone_pattern.finditer(content)):
         errors.append(f'{file.relative_to(ROOT)}: phone-like number found')
 
@@ -134,4 +162,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local file references, anchors (no placeholder hrefs), supplied Learn links, five JSON-LD credentials, JPEG headshot, 1200 × 630 PNG and privacy scan (no phone numbers in repo text files).')
+print(f'PASS: {checked} local file references, anchors (no placeholder hrefs), supplied Learn links, five JSON-LD credentials, JPEG headshot, 1200 × 630 PNG, Brief 6 hero checks, header-only CV, v=7 assets and privacy scan (no phone numbers in repo text files).')
