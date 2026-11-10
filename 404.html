@@ -4,26 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#f8f7f3">
+  <meta name="theme-color" content="#7ec8ff">
   <title>Page not found — Gopinath Gurusamy</title>
   <script>
-    // Resolve relative assets even when GitHub Pages serves this at a nested URL.
+    // Resolve the Pages project base before requesting any relative assets.
+    // Creating the asset elements here avoids speculative requests from deep URLs.
     if (location.pathname.startsWith('/gopinath-portfolio/')) {
       const base = document.createElement('base');
       base.href = '/gopinath-portfolio/';
       document.head.append(base);
-      document.addEventListener('DOMContentLoaded', () => {
-        document.querySelector('.skip-link').href = location.pathname + '#main';
-      });
     }
+    const icon = document.createElement('link');
+    icon.rel = 'icon';
+    icon.type = 'image/svg+xml';
+    icon.href = 'favicon.svg';
+    document.head.append(icon);
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = 'assets/css/styles.css?v=11';
+    document.head.append(stylesheet);
+    document.addEventListener('DOMContentLoaded', () => {
+      if (location.pathname.startsWith('/gopinath-portfolio/')) {
+        document.querySelector('.skip-link').href = location.pathname + '#main';
+      }
+      const script = document.createElement('script');
+      script.src = 'assets/js/main.js?v=11';
+      document.head.append(script);
+    });
   </script>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/styles.css?v=8">
-  <script src="assets/js/main.js?v=8" defer></script>
+  <noscript><link rel="icon" href="favicon.svg" type="image/svg+xml"> <link rel="stylesheet" href="assets/css/styles.css?v=11"></noscript>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header"><div class="header-inner wrap"><a class="brand" href="./" aria-label="Gopinath Gurusamy, home"><span class="brand-monogram" aria-hidden="true">GG.</span> <span class="brand-name">Gopinath Gurusamy</span></a><button class="theme-toggle" type="button" aria-label="Switch colour theme" aria-pressed="false" hidden><span class="theme-icon" aria-hidden="true">◐</span></button></div></header>
-  <main class="wrap error-page" id="main" tabindex="-1"><span class="eyebrow">Page not found</span><h1>Let’s get you<br>  back on track.</h1> <p>This page doesn’t exist. Head back to the portfolio to explore my work or get in touch.</p> <a class="button button-primary" href="./">Back to portfolio <span aria-hidden="true">↗</span></a></main>
+  <header class="masthead"><div class="masthead-row page-width"><a class="wordmark" href="./" aria-label="Gopinath Gurusamy, home">g<span class="accent" aria-hidden="true">.</span> <span class="wordmark-name">Gopinath Gurusamy</span></a> <button class="theme-toggle" type="button" aria-label="Switch colour theme" aria-pressed="false" hidden>◐</button></div></header>
+  <main class="page-width error-page" id="main" tabindex="-1"><span class="error-record">Page not found</span> <h1>Record not found.<br> Let’s reconnect.</h1> <p>This page doesn’t exist. Return to the portfolio for career records, selected solutions and contact details.</p> <a class="solid-link" href="./">Back to portfolio <span aria-hidden="true">↗</span></a></main>
 </body>
 </html>
