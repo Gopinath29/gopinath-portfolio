@@ -87,6 +87,21 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
     page.feed(html)
     if len(page.ids) != len(set(page.ids)):
         errors.append(f'{filename}: duplicate IDs')
+    for link in page.links:
+        attrs = link['attrs']
+        href = attrs.get('href', '')
+        url = urlsplit(href)
+        if url.scheme in ('http', 'https', 'mailto') or url.netloc:
+            if attrs.get('target') != '_blank' or not {'noopener', 'noreferrer'} <= set(attrs.get('rel', '').split()):
+                errors.append(f'{filename}: external link needs target=_blank and rel=noopener noreferrer: {href}')
+            name = attrs.get('aria-label') or link['text']
+            if 'opens in new tab' not in name.casefold():
+                errors.append(f'{filename}: external link needs accessible opens in new tab hint: {href}')
+        elif href.startswith(('#', './')) or href == 'assets/resume/Gopinath_Gurusamy_Resume.pdf?v=15':
+            if attrs.get('target') == '_blank':
+                errors.append(f'{filename}: navigation and CV links must stay same-tab: {href}')
+        else:
+            errors.append(f'{filename}: unrecognised same-tab link exception: {href}')
     for tag, attr, value in page.references:
         url = urlsplit(value)  # Check only the path; allow cache-busting queries.
         if attr == 'href' and (not value.strip() or value.strip() == '#'):
@@ -106,8 +121,8 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
     for link in page.credential_links:
         if link['href'] not in VERIFICATION_URLS.values():
             errors.append(f'{filename}: unknown Microsoft Learn verification URL')
-        if link.get('target') != '_blank' or 'noopener' not in link.get('rel', '').split():
-            errors.append(f'{filename}: credential link needs target=_blank and rel=noopener')
+        if link.get('target') != '_blank' or not {'noopener', 'noreferrer'} <= set(link.get('rel', '').split()):
+            errors.append(f'{filename}: credential link needs target=_blank and rel=noopener noreferrer')
     if filename == 'index.html' and {link['href'] for link in page.credential_links} != set(VERIFICATION_URLS.values()):
         errors.append(f'{filename}: missing supplied Microsoft Learn verification links')
     if filename == 'index.html':
@@ -237,16 +252,16 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
     if filename == '404.html':
         # The 404 bootstrap requests assets only after resolving its project base.
         for value in re.findall(r"(?:stylesheet\.href|script\.src|icon\.href)\s*=\s*['\"]([^'\"]+)['\"]", html):
-            page.references.append(('script' if value.endswith('.js?v=16') else 'link', 'src' if value.endswith('.js?v=16') else 'href', value))
+            page.references.append(('script' if value.endswith('.js?v=17') else 'link', 'src' if value.endswith('.js?v=17') else 'href', value))
             checked += 1
             if not (ROOT / urlsplit(value).path).is_file():
                 errors.append(f'{filename}: missing bootstrap asset {value}')
-        if "script.src = 'assets/js/main.js?v=16'" not in html:
-            errors.append(f'{filename}: expected v=16 bootstrap JavaScript')
+        if "script.src = 'assets/js/main.js?v=17'" not in html:
+            errors.append(f'{filename}: expected v=17 bootstrap JavaScript')
     for tag, attr, value in page.references:
         if (tag, attr) in (('link', 'href'), ('script', 'src')) and urlsplit(value).path in ('assets/css/styles.css', 'assets/js/main.js'):
-            if urlsplit(value).query != 'v=16':
-                errors.append(f'{filename}: expected v=16 cache-busting for {value}')
+            if urlsplit(value).query != 'v=17':
+                errors.append(f'{filename}: expected v=17 cache-busting for {value}')
     for schema in page.schemas:
         if schema.get('@type') != 'Person' or 'telephone' in schema:
             errors.append(f'{filename}: incorrect Person metadata')
@@ -347,4 +362,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; accessible GG headers; five closed native career records; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=16 assets; {text_count} UTF-8 files and {pdf_count} PDFs scanned; private client name and filename scan clear; published personal-project scan clear; text and PDF phone privacy clear.')
+print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; accessible GG headers; five closed native career records; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=17 assets; {text_count} UTF-8 files and {pdf_count} PDFs scanned; private client name and filename scan clear; published personal-project scan clear; text and PDF phone privacy clear.')

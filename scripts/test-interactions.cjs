@@ -8,6 +8,12 @@ const html = readFileSync(resolve(root, 'index.html'), 'utf8');
 const code = readFileSync(resolve(root, 'assets/js/main.js'), 'utf8');
 let checks = 0;
 function check(fn) { fn(); checks++; }
+function newTab(link) {
+  check(()=>assert.ok(link));
+  check(()=>assert.equal(link.target,'_blank'));
+  check(()=>assert.ok(['noopener','noreferrer'].every(value=>link.relList.contains(value))));
+  check(()=>assert.match(link.getAttribute('aria-label') || link.textContent,/opens in new tab/i));
+}
 function page({stored, dark = false, storageFailure = false, clipboardFailure = false, reduced = false, hash = ''} = {}) {
   const dom = new JSDOM(html, { url: 'http://127.0.0.1:8093/' + hash, runScripts: 'outside-only' });
   const w = dom.window;
@@ -26,6 +32,8 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
     const p = page({reduced}); const {w,doc}=p;
     check(()=>assert.equal(doc.querySelector('.wordmark').textContent,'GG'));
     check(()=>assert.equal(doc.querySelector('.wordmark').getAttribute('aria-label'),'GG, Gopinath Gurusamy, back to top'));
+    doc.querySelectorAll('a[href^="https:"],a[href^="http:"],a[href^="mailto:"]').forEach(newTab);
+    doc.querySelectorAll('a[href^="#"],.cv-link').forEach(link=>check(()=>assert.notEqual(link.target,'_blank')));
     check(()=>assert.equal(doc.querySelectorAll('details.career-record').length,5));
     check(()=>assert.ok([...doc.querySelectorAll('details.career-record')].every(d=>!d.open)));
     doc.querySelector('a[href="#career-codec"]').click();
@@ -40,6 +48,9 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
     check(()=>assert.match(run('pac certs'), /PL-600[\s\S]*AB-100[\s\S]*AB-620[\s\S]*MCSE[\s\S]*MCSA/));
     const contact=run('pac contact');
     check(()=>assert.equal(contact,'Email: itiangopi@gmail.com\nLinkedIn: https://www.linkedin.com/in/gopinath-gurusamy'));
+    check(()=>assert.equal(out.lastElementChild.querySelectorAll('a').length,2));
+    newTab(out.lastElementChild.querySelector('a[href="https://www.linkedin.com/in/gopinath-gurusamy"]'));
+    newTab(out.lastElementChild.querySelector('a[href="mailto:itiangopi@gmail.com"]'));
     const projects=run('pac projects').split('\n');
     check(()=>assert.equal(projects[0],'Case Assistant'));
     check(()=>assert.equal(projects.length,6));
@@ -49,6 +60,10 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
     check(()=>assert.equal(input.value,''));
     check(()=>assert.match(run('<img src=x onerror=alert(1)>'),/not recognised/));
     check(()=>assert.equal(out.querySelectorAll('img').length,0));
+    run('https://example.com/ <a href="javascript:alert(1)">test</a>');
+    check(()=>assert.equal(out.lastElementChild.querySelectorAll('a').length,0));
+    check(()=>assert.equal(out.children[out.children.length-2].querySelectorAll('*').length,0));
+    check(()=>assert.match(run('constructor'),/not recognised/));
     run('clear');check(()=>assert.equal(out.children.length,0));
     run('   ');check(()=>assert.equal(out.children.length,0));
     for(let i=0;i<40;i++)run('help');check(()=>assert.equal(out.children.length,60));
@@ -66,6 +81,9 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
     check(()=>assert.equal(doc.querySelector('.copy-status').textContent,'Email copied.'));
     p.close();
   }
+  const notFound = new JSDOM(readFileSync(resolve(root,'404.html'),'utf8'));
+  notFound.window.document.querySelectorAll('a').forEach(link=>check(()=>assert.notEqual(link.target,'_blank')));
+  notFound.window.close();
   const linked=page({hash:'#career-codec'});
   check(()=>assert.equal(linked.doc.querySelector('#career-codec details').open,true));linked.close();
   const changed=page();changed.w.location.hash='#career-codec';

@@ -74,6 +74,13 @@ with tempfile.TemporaryDirectory(prefix='portfolio-verifier-') as empty_path:
     assert result.returncode!=0 and 'requires pdftotext' in result.stderr,result.stderr
     checks+=1
 for name, old, new, expected in (
+    ('404.html', '</main>', '<a href="https://example.com/">External</a></main>', 'external link needs target=_blank and rel=noopener noreferrer'),
+    ('404.html', '</main>', '<a href="mailto:itiangopi@gmail.com">Email</a></main>', 'external link needs target=_blank and rel=noopener noreferrer'),
+    ('index.html', 'rel="noopener noreferrer"', 'rel="noopener"', 'external link needs target=_blank and rel=noopener noreferrer'),
+    ('index.html', '(opens in new tab)', '(external)', 'external link needs accessible opens in new tab hint'),
+    ('index.html', 'href="#main"', 'href="#main" target="_blank"', 'navigation and CV links must stay same-tab'),
+    ('index.html', 'download="Gopinath_Gurusamy_Resume.pdf"', 'target="_blank" download="Gopinath_Gurusamy_Resume.pdf"', 'navigation and CV links must stay same-tab'),
+    ('404.html', 'href="./"', 'href="./" target="_blank"', 'navigation and CV links must stay same-tab'),
     ('index.html', 'back to top">GG</a>', 'back to top">G</a>', 'expected accessible GG wordmark'),
     ('404.html', 'GG, Gopinath Gurusamy, home', 'Gopinath Gurusamy, home', 'expected accessible GG wordmark'),
     ('index.html', '<details class="career-record">', '<details class="career-record" open>', 'career records closed by default'),
@@ -88,7 +95,7 @@ for name, old, new, expected in (
     ('index.html', 'Help case officers at a regulatory body', 'extra ' * 40 + 'Help case officers at a regulatory body', 'Work must be about 350 words'),
     ('index.html', 'class="atmosphere"', 'class="missing-scene"', 'missing decorative background layer'),
     ('assets/css/styles.css', '.atmosphere{display:none!important}', '.atmosphere{display:block!important}', 'Background must be fully disabled'),
-    ('index.html', 'styles.css?v=16', 'styles.css?v=11', 'expected v=16 cache-busting'),
+    ('index.html', 'styles.css?v=17', 'styles.css?v=11', 'expected v=17 cache-busting'),
     ('assets/js/main.js', 'i < 104', 'i < 28', 'Dark scenery must create 80–120 stars'),
     ('assets/css/styles.css', 'z-index:0;pointer-events:none', 'z-index:-1;pointer-events:none', 'Background must paint above the page wash'),
     ('assets/css/styles.css', 'animation:shoot 12s', 'animation:shoot 27s', 'Dark shooting trails must retain'),
@@ -104,4 +111,4 @@ for name, old, new, expected in (
     finally:
         path.write_text(original)
 assert verify().returncode==0,'Final cleanup verifier failed'
-print(f'PASS: {checks} verifier regression assertions; text/PDF privacy, PDF extraction/dependency, V5 content, GG headers, closed career records, background, reduced-motion and cache guards reject broken fixtures; source restored.')
+print(f'PASS: {checks} verifier regression assertions; text/PDF privacy, PDF extraction/dependency, external links, accessible hints, same-tab navigation/CV, V5 content, GG headers, closed career records, background, reduced-motion and cache guards reject broken fixtures; source restored.')

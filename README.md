@@ -14,7 +14,7 @@ Open <http://127.0.0.1:8093/>. Reuse an existing preview of this repository on t
 
 ## Static hosting and fonts
 
-GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=16`. The header CV link uses `?v=15` and explicitly preserves the download filename `Gopinath_Gurusamy_Resume.pdf`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
+GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=17`. The header CV link uses `?v=15` and explicitly preserves the download filename `Gopinath_Gurusamy_Resume.pdf`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
 
 Sora headings, Plus Jakarta Sans body text and JetBrains Mono labels, credentials and terminal are self-hosted in `assets/fonts/`. The variable fonts come from the official [Google Fonts repository](https://github.com/google/fonts), with their OFL notices beside them. The site needs no font CDN.
 

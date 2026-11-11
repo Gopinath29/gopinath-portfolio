@@ -108,6 +108,22 @@
     'pac projects': projects.join('\n') + '\nAI & Copilot: #copilot (pac copilot)',
     'pac copilot': 'AI & Copilot — #copilot\nCase Assistant: Copilot Studio agent for Dynamics 365 Customer Service\nClient: a regulatory body\nFind and summarise a case\nFind case documents\nSuggest next steps\nCreate a case\nD365 Copilot: case summaries including custom fields; draft email replies; knowledge-grounded answers with citations; similar-case matching.\nAB-100 · AB-620 — verify links in Credentials (#certifications).'
   };
+  function appendCommandOutput(answer, text) {
+    // Only known command output reaches this renderer; typed input stays text.
+    for (const token of text.split(/(\s+)/)) {
+      const web = /^https?:\/\/[^\s<>"']+$/i.test(token);
+      const mailbox = /^(?:mailto:)?[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(token);
+      if (web || mailbox) {
+        const link = document.createElement('a');
+        link.href = mailbox && !token.startsWith('mailto:') ? `mailto:${token}` : token;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = token;
+        link.setAttribute('aria-label', `${token} (opens in new tab)`);
+        answer.append(link);
+      } else answer.append(document.createTextNode(token));
+    }
+  }
   form.addEventListener('submit', event => {
     event.preventDefault();
     const typed = input.value.trim();
@@ -119,7 +135,8 @@
       echo.className = 'command-echo';
       echo.textContent = `› ${typed} `;
       const answer = document.createElement('p');
-      answer.textContent = (commands[command] || 'Command not recognised. Type help for available commands.') + ' ';
+      if (Object.hasOwn(commands, command)) appendCommandOutput(answer, commands[command] + ' ');
+      else answer.textContent = 'Command not recognised. Type help for available commands. ';
       output.append(echo, answer);
       // Keep long sessions manageable without ever interpreting input as HTML.
       while (output.children.length > 60) output.firstElementChild.remove();

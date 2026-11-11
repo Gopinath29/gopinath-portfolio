@@ -12,7 +12,17 @@ function check(ok,label){assert.ok(ok,label);checks++;}
 const blocked=[[67,67,80,67],[83,101,108,108,101,114,74,111,121],[83,116,111,99,107,32,68,101,115,107],[71,83,84,32,70,105,108,105,110,103]].map(a=>String.fromCharCode(...a));
 function privacy(t){check(!blocked.some(s=>t.toLowerCase().includes(s.toLowerCase())),'private text absent');check(!/(?:\+?\d[ ()-]*){10,15}/.test(t),'phone absent');}
 async function ready(p){await p.evaluate(()=>document.fonts.ready);await p.waitForTimeout(300);}
+async function linkTargets(p) {
+ const external=p.locator('a[href^="https:"],a[href^="http:"],a[href^="mailto:"]');
+ for(const link of await external.all()) {
+  check(await link.getAttribute('target')==='_blank','external link opens new tab');
+  check(await link.evaluate(e=>['noopener','noreferrer'].every(v=>e.relList.contains(v))),'external link isolates opener and referrer');
+  check((await link.ariaSnapshot()).includes('opens in new tab'),'external link accessible new tab hint');
+ }
+ check(await p.locator('a[href^="#"],a[href^="./"],.cv-link').evaluateAll(es=>es.every(e=>e.target!=='_blank')),'navigation, skip, wordmark, back-to-top and CV stay same-tab');
+}
 async function wordmark(p,home=true){
+ await linkTargets(p);
  const label='GG, Gopinath Gurusamy, '+(home?'back to top':'home');
  const mark=p.locator('.wordmark');
  check(await mark.innerText()==='GG','visible wordmark is exactly GG');
@@ -81,9 +91,18 @@ async function measure(p){return p.evaluate(()=>{
 async function commands(p,theme,reduced=false){
  const input=p.locator('#terminal-command'),out=p.locator('.terminal-output');
  const expected={help:/pac certs[\s\S]*pac contact[\s\S]*pac projects[\s\S]*pac copilot[\s\S]*clear/,'pac certs':/PL-600[\s\S]*AB-100[\s\S]*AB-620/,'pac contact':/^Email: itiangopi@gmail.com\nLinkedIn: https:\/\/www.linkedin.com\/in\/gopinath-gurusamy\s*$/,'pac projects':/^Case Assistant[\s\S]*Irish national healthcare organisation[\s\S]*AI & Copilot/,'pac copilot':/Client: a regulatory body[\s\S]*Find and summarise a case[\s\S]*Find case documents[\s\S]*Suggest next steps[\s\S]*Create a case[\s\S]*AB-100 · AB-620[\s\S]*Credentials \(#certifications\)/};
- for(const [cmd,re] of Object.entries(expected)){await input.fill(cmd);await input.press('Enter');const t=await out.locator('p').last().textContent();check(re.test(t),cmd+' output');privacy(t);check(await input.evaluate(e=>document.activeElement===e),cmd+' focus');results.interactions.push({width:p.viewportSize().width,theme,reduced,command:cmd,output:t.trim()});}
+ for(const [cmd,re] of Object.entries(expected)){await input.fill(cmd);await input.press('Enter');const t=await out.locator('p').last().textContent();check(re.test(t),cmd+' output');if(cmd==='pac contact') {
+  const answer=out.locator('p').last();
+  check(await answer.locator('a').count()===2,'contact has two real links');
+  for(const href of ['https://www.linkedin.com/in/gopinath-gurusamy','mailto:itiangopi@gmail.com']) {
+   const link=answer.locator(`a[href="${href}"]`);
+   check(await link.getAttribute('target')==='_blank','terminal contact opens new tab');
+   check(await link.evaluate(e=>['noopener','noreferrer'].every(v=>e.relList.contains(v))),'terminal contact safe rel');
+   check((await link.ariaSnapshot()).includes('opens in new tab'),'terminal accessible new tab hint');
+  }
+ }privacy(t);check(await input.evaluate(e=>document.activeElement===e),cmd+' focus');results.interactions.push({width:p.viewportSize().width,theme,reduced,command:cmd,output:t.trim()});}
  await input.fill('clear');await input.press('Enter');check(await out.locator('*').count()===0,'clear');
- await input.fill('<img src=x onerror=alert(1)>');await input.press('Enter');check(await out.locator('img').count()===0,'safe terminal text');await input.fill('clear');await input.press('Enter');
+ await input.fill('<img src=x onerror=alert(1)>');await input.press('Enter');check(await out.locator('img').count()===0,'safe terminal text');await input.fill('https://example.com/ <a href=javascript:alert(1)>test</a>');await input.press('Enter');check(await out.locator('p').last().locator('a').count()===0,'typed URLs never linkified');check(await out.locator('.command-echo').last().locator('*').count()===0,'typed HTML stays text');await input.fill('clear');await input.press('Enter');
 }
 async function stars(p,width,theme){
  const sharp=require('sharp');
