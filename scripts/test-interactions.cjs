@@ -8,8 +8,8 @@ const html = readFileSync(resolve(root, 'index.html'), 'utf8');
 const code = readFileSync(resolve(root, 'assets/js/main.js'), 'utf8');
 let checks = 0;
 function check(fn) { fn(); checks++; }
-function page({stored, dark = false, storageFailure = false, clipboardFailure = false, reduced = false} = {}) {
-  const dom = new JSDOM(html, { url: 'http://127.0.0.1:8093/', runScripts: 'outside-only' });
+function page({stored, dark = false, storageFailure = false, clipboardFailure = false, reduced = false, hash = ''} = {}) {
+  const dom = new JSDOM(html, { url: 'http://127.0.0.1:8093/' + hash, runScripts: 'outside-only' });
   const w = dom.window;
   const listeners = {};
   w.matchMedia = query => ({matches: query.includes('reduced-motion') ? reduced : dark, addEventListener: (type, fn) => { listeners[query] = fn; }});
@@ -24,6 +24,12 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
 (async () => {
   for (const reduced of [false, true]) {
     const p = page({reduced}); const {w,doc}=p;
+    check(()=>assert.equal(doc.querySelector('.wordmark').textContent,'GG'));
+    check(()=>assert.equal(doc.querySelector('.wordmark').getAttribute('aria-label'),'GG, Gopinath Gurusamy, back to top'));
+    check(()=>assert.equal(doc.querySelectorAll('details.career-record').length,5));
+    check(()=>assert.ok([...doc.querySelectorAll('details.career-record')].every(d=>!d.open)));
+    doc.querySelector('a[href="#career-codec"]').click();
+    check(()=>assert.equal(doc.querySelector('#career-codec details').open,true));
     const input=doc.querySelector('#terminal-command'),form=doc.querySelector('.terminal-form'),out=doc.querySelector('.terminal-output');
     check(()=>assert.equal(doc.querySelectorAll('.star').length,104));
     check(()=>assert.equal(new Set([...doc.querySelectorAll('.star')].map(e=>e.style.getPropertyValue('--star-size'))).size,3));
@@ -60,6 +66,11 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
     check(()=>assert.equal(doc.querySelector('.copy-status').textContent,'Email copied.'));
     p.close();
   }
+  const linked=page({hash:'#career-codec'});
+  check(()=>assert.equal(linked.doc.querySelector('#career-codec details').open,true));linked.close();
+  const changed=page();changed.w.location.hash='#career-codec';
+  await new Promise(resolve=>changed.w.setTimeout(resolve,0));
+  check(()=>assert.equal(changed.doc.querySelector('#career-codec details').open,true));changed.close();
   for(const options of [{stored:'dark'}, {dark:true}, {stored:'invalid',dark:true}]){
     const p=page(options);check(()=>assert.equal(p.doc.documentElement.dataset.theme,'dark'));p.close();
   }

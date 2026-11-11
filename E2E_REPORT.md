@@ -1,6 +1,6 @@
 # Portfolio E2E report — current V5
 
-**Current: V5 PASS, 1,213 words (Selected Work: 350).** See the V5 section and final E2E SUMMARY below for fresh counts, checks and screenshots. V3/V4 sections are preserved historical evidence; their content and cache-version descriptions describe those earlier revisions.
+**Current: GG header follow-up PASS, 1,211 words (Selected Work: 350).** See the final GG header section for current checks and screenshots. Earlier V3/V4/V5 sections remain historical evidence for those revisions.
 
 ## V3 follow-up — 10 November 2026
 
@@ -346,3 +346,16 @@ The trim word count is unchanged at **1,213** (Selected Work 350). A later verif
 - **Layout/evidence:** compact Copilot feature card and education in About; v5 screenshots plus an inspected dark desktop capture showing stars.
 - **Unverified:** Playwright WebKit (launch abort on this Mac), deployment, production nested-404 routing, current external-link availability, assistive technology and physical devices. No formal accessibility certification or OS-level hidden-tab test is claimed.
 - **Operations:** no commit or `.git` access during Codex runs; headless Chromium used; browser tools/cache outside repo; preview on 8093; ports 8080/8765 untouched.
+
+
+## GG header and collapsed Codec — 11 November 2026
+
+The home and 404 mastheads now show the existing circular headshot plus visible “GG” in bold Sora, using the main light/dark masthead ink at desktop and mobile sizes. Accessible names include GG, Gopinath Gurusamy and the appropriate destination. Obsolete wordmark-name styling and its responsive hide/show rules were removed. The original link targets remain.
+
+All five native career disclosures now start closed on a normal visit. Codec Ireland still opens and closes through summary clicks, Enter and Space, and opens through its related links, initial URL hash and subsequent hash changes. Existing production JavaScript supplies that behavior unchanged. CSS/JS cache queries are `?v=16`; the CV remains `?v=15`.
+
+Validation passed: 1,211 total words (Work 350); static references/metadata/privacy verifier; 30 verifier regression assertions; JavaScript syntax; html-validate 10.17.0; 73 jsdom interaction assertions; 547 cached V5 headless Chromium assertions; and 599 in-repository headless Chromium assertions including star pixel/timing checks. Both browser suites cover eight width/theme samples, the 404 at desktop/mobile in both themes, native keyboard operation, all career records closed on a fresh visit, related links and direct/hashchange targeting. Header checks verify exact visible text, accessible name, bold Sora/main ink and a loaded photo with a visible pseudo-element box. Expanded-page axe checks report zero A/AA violations; both runners report zero page/request errors. Targeted contrast remains at least 4.55:1, with zero motion layout delta in every sample.
+
+Current results: `qa-artifacts/v5-playwright-results.json`, `qa-artifacts/v5-stars-chromium-results.json` and `qa-artifacts/gg-header-word-counts.json`. Current desktop light header and mobile light/dark captures were inspected. The desktop crop is `/Users/gopinathgurusamy/portfolio-burst/logs/portfolio-gg-header.png`.
+
+QA used only headless Playwright Chromium and the local preview on 8093; dependencies and the cached runner remain outside the repository. No user Chrome app or cv-public worktree was used. Deployment, production routing, other engines, assistive technology and physical devices were not validated in this follow-up. Earlier sections above describe historical revisions.

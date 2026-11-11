@@ -12,6 +12,39 @@ function check(ok,label){assert.ok(ok,label);checks++;}
 const blocked=[[67,67,80,67],[83,101,108,108,101,114,74,111,121],[83,116,111,99,107,32,68,101,115,107],[71,83,84,32,70,105,108,105,110,103]].map(a=>String.fromCharCode(...a));
 function privacy(t){check(!blocked.some(s=>t.toLowerCase().includes(s.toLowerCase())),'private text absent');check(!/(?:\+?\d[ ()-]*){10,15}/.test(t),'phone absent');}
 async function ready(p){await p.evaluate(()=>document.fonts.ready);await p.waitForTimeout(300);}
+async function wordmark(p,home=true){
+ const label='GG, Gopinath Gurusamy, '+(home?'back to top':'home');
+ const mark=p.locator('.wordmark');
+ check(await mark.innerText()==='GG','visible wordmark is exactly GG');
+ check(await p.getByRole('link',{name:label,exact:true}).count()===1,'wordmark accessible name includes GG, full name and destination');
+ check(await mark.getAttribute('href')===(home?'#top':'./'),'wordmark target preserved');
+ const style=await mark.evaluate(async e=>{
+  const s=getComputedStyle(e),photo=getComputedStyle(e,'::before');
+  const source=photo.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
+  const img=new Image();img.src=source||'';let loaded=false;try{await img.decode();loaded=img.naturalWidth>0;}catch{}
+  const range=document.createRange();range.selectNodeContents(e);const text=range.getBoundingClientRect();
+  return {font:s.fontFamily,weight:s.fontWeight,color:s.color,ink:getComputedStyle(document.body).color,photo:photo.backgroundImage,width:parseFloat(photo.width),height:parseFloat(photo.height),content:photo.content,display:photo.display,loaded,visible:text.width>0&&text.height>0};
+ });
+ check(style.visible&&style.font.includes('Sora')&&style.weight==='700','GG visible in bold Sora');
+ check(style.color===style.ink,'both Gs use masthead ink');
+ check(style.photo.includes('headshot.jpg')&&style.loaded&&style.width>0&&style.height>0&&style.content!=='none'&&style.display!=='none','wordmark photo loaded with visible box');
+ results.headers??=[];results.headers.push({page:home?'home':'404',width:p.viewportSize().width,label,...style});
+}
+async function career(p){
+ const records=p.locator('details.career-record'),codec=p.locator('#career-codec details'),summary=codec.locator('summary');
+ check(await records.count()===5&&await records.evaluateAll(ds=>ds.every(d=>!d.open)),'all five career records initially closed');
+ await summary.click();check(await codec.evaluate(e=>e.open),'Codec summary click opens');
+ await summary.click();check(!await codec.evaluate(e=>e.open),'Codec summary click closes');
+ await summary.focus();
+ for(const key of ['Enter','Space']){
+  await p.keyboard.press(key);check(await codec.evaluate(e=>e.open),'Codec '+key+' opens');
+  await p.keyboard.press(key);check(!await codec.evaluate(e=>e.open),'Codec '+key+' closes');
+ }
+ await p.getByRole('link',{name:'Codec Ireland career record ↗'}).first().click();
+ check(await codec.evaluate(e=>e.open),'related Codec link opens closed record');
+ await summary.click();
+ await p.evaluate(()=>{history.replaceState(null,'',location.pathname);window.scrollTo(0,0);});
+}
 async function measure(p){return p.evaluate(()=>{
  const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)],st=getComputedStyle(document.documentElement);
  const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number),hex=s=>{s=s.trim();return [1,3,5].map(i=>parseInt(s.slice(i,i+2),16))};
@@ -103,6 +136,7 @@ async function close(){await browser.close();browser=null;}
   p.on('pageerror',e=>results.errors.push(e.message));p.on('requestfailed',r=>results.errors.push({url:r.url(),error:r.failure()?.errorText}));
   await p.addInitScript(()=>{window.motionShifts=[];if(PerformanceObserver.supportedEntryTypes.includes('layout-shift'))new PerformanceObserver(list=>{for(const e of list.getEntries())if(!e.hadRecentInput)window.motionShifts.push(e.value)}).observe({type:'layout-shift',buffered:true});});
   await p.goto(url,{waitUntil:'networkidle'});await ready(p);
+  await wordmark(p);
   const s=await measure(p);results.samples.push(s);if(theme==='dark')await stars(p,width,theme);
   check(s.theme===theme,'theme follows system');check(s.scene===theme,'background follows theme');check(s.state==='running','motion enabled');check(s.activeScene.length===1&&s.activeScene[0]==='sky-'+theme,'one visible scene');check(!s.overflow,`${width} ${theme} overflow`);check(s.fonts.every(Boolean),'fonts loaded');check(s.portrait.loaded&&s.portrait.inside&&s.portrait.objectPosition==='50% 0%','portrait fits and preserves top');check(s.flow==='100+','final metric');check(s.contrast.failures.length===0,'all text AA '+JSON.stringify(s.contrast.failures));check(s.contrast.ui.every(u=>u.ratio>=3),'UI contrast');
   check(theme==='dark'?s.animations.some(a=>a.name==='twinkle')&&s.animations.some(a=>a.name==='shoot'):s.animations.some(a=>a.name==='cloud-drift')&&s.animations.some(a=>a.name==='plane-flight'),'correct active animations');
@@ -117,6 +151,7 @@ async function close(){await browser.close();browser=null;}
   check(before.length>0&&after.every(a=>a.state==='paused'),'hidden CSS loops paused');check(after.every((a,i)=>Math.abs(a.time-before[i].time)<.01),'hidden timeline stops');
   await p.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});await p.waitForTimeout(100);const resumed=await p.evaluate(()=>document.querySelector('.atmosphere').getAnimations({subtree:true}).map(a=>({time:a.currentTime,state:a.playState})));
   check(resumed.every((a,i)=>a.state==='running'&&a.time>after[i].time),'visible timelines resume');results.motion.push({width,theme,maxLayoutDelta:maxDelta,initialCLS:initial.sum,pausedAnimations:after.length,hiddenTimelinesStopped:true,resumed:true});
+  await career(p);
   // Full retained disclosures and targeted contrast remain usable with motion.
   await p.locator('details').evaluateAll(ds=>ds.forEach(d=>d.open=true));const expanded=await measure(p);check(!expanded.overflow,'expanded overflow');check(expanded.contrast.failures.length===0,'expanded text AA '+JSON.stringify(expanded.contrast.failures));
   const axe=await new AxeBuilder({page:p}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();results.accessibility.push({width,theme,violations:axe.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))})),incomplete:axe.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))});check(axe.violations.length===0,'axe violations '+JSON.stringify(results.accessibility.at(-1).violations));
@@ -134,6 +169,7 @@ async function close(){await browser.close();browser=null;}
  }
  await launch();const p=await browser.newPage({viewport:{width:1440,height:900},colorScheme:'light'});await p.goto(url,{waitUntil:'networkidle'});await p.emulateMedia({colorScheme:'dark'});await p.waitForFunction(()=>document.documentElement.dataset.theme==='dark');check(await p.locator('.atmosphere').getAttribute('data-scene')==='dark','unsaved system dark scene');await p.emulateMedia({colorScheme:'light'});await p.waitForFunction(()=>document.documentElement.dataset.theme==='light');check(await p.locator('.atmosphere').getAttribute('data-scene')==='light','unsaved system light scene');
  for(const width of [320,360,650,960,1000,1100,1200])for(const theme of ['light','dark']){await p.setViewportSize({width,height:900});await p.emulateMedia({colorScheme:theme});await p.waitForFunction(t=>document.documentElement.dataset.theme===t,theme);check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`extra ${width} ${theme} overflow`);}
- for(const theme of ['light','dark']){await p.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await p.setViewportSize({width,height:900});await p.goto(url+'404.html',{waitUntil:'networkidle'});await ready(p);const s=await measure(p);check(!s.overflow,'404 overflow');check(s.scene===theme,'404 scene');check(s.contrast.failures.length===0,'404 contrast');await p.getByRole('link',{name:/Back to portfolio/}).click();check(await p.locator('#hero-title').count()===1,'404 return');}}
+ for(const width of [1440,390]){await p.setViewportSize({width,height:900});await p.goto(url+'#career-codec',{waitUntil:'networkidle'});check(await p.locator('#career-codec details').evaluate(e=>e.open),'initial Codec hash opens record');await p.evaluate(()=>{location.hash='career-bank';});await p.waitForFunction(()=>document.querySelector('#career-bank details').open);check(await p.locator('#career-bank details').evaluate(e=>e.open),'hashchange opens career record');}
+ for(const theme of ['light','dark']){await p.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await p.setViewportSize({width,height:900});await p.goto(url+'404.html',{waitUntil:'networkidle'});await ready(p);await wordmark(p,false);const s=await measure(p);check(!s.overflow,'404 overflow');check(s.scene===theme,'404 scene');check(s.contrast.failures.length===0,'404 contrast');await p.getByRole('link',{name:/Back to portfolio/}).click();check(await p.locator('#hero-title').count()===1,'404 return');}}
  await close();check(results.errors.length===0,'no page/request errors');results.status='PASS';results.checks=checks;writeFileSync(path.join(dest,`v5-stars-${engine.name()}-results.json`),JSON.stringify(results,(_k,v)=>typeof v==='number'?Math.round(v*100)/100:v,2));console.log(JSON.stringify({status:results.status,checks,samples:results.samples.length,motion:results.motion,errors:results.errors},null,2));
 })().catch(async e=>{results.status=engine===webkit&&!results.browserVersion?'BLOCKED':'FAIL';results.failure=e.message;results.checks=checks;writeFileSync(path.join(dest,`v5-stars-${engine.name()}-results.json`),JSON.stringify(results,(_k,v)=>typeof v==='number'?Math.round(v*100)/100:v,2));console.error(e);if(browser)await close();process.exitCode=1;});

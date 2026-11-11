@@ -1,33 +1,35 @@
 # Portfolio v5 verification — 11 November 2026
 
-**PASS: requested local V5 acceptance checks complete.** The page has **1,213 words**, down from **2,038**; Selected Work is **350 words**. Full before/after section counts, screenshots and evidence are in [E2E_REPORT.md](E2E_REPORT.md#v5--content-trim-preserved-v4-design--11-november-2026).
+**PASS: requested local V5 acceptance checks complete.** The page has **1,211 words**, down from **2,038**; Selected Work is **350 words**. The GG follow-up removes two header words. Full section counts, screenshots and evidence are in [E2E_REPORT.md](E2E_REPORT.md).
 
 | Requirement | Current result |
 | --- | --- |
 | Work | Case Assistant first, problem/outcome/four short topics/tech; four other real case studies retained; 350 words total |
 | AI & Copilot | Four configured D365 features, Work link, no repeated topics or credential verify links; 41 words |
 | Products | Six distinct capability lines; no 100+ repetition on Power Automate card |
+| Header | Photo + bold Sora GG on home/404, desktop/mobile, both themes; exact accessible names include GG, full name and destination; inherited masthead ink |
 | Hero | One tagline, name/role/portrait/featured-work pointer, single plain PL-600 + linked AB-100 pair and CTAs |
 | Metrics / privacy | 100+ visible and accessible, including reduced motion/no JS; repo text, PDF text and filename privacy scan PASS |
-| About / Career | Education/languages moved into About; same five employers, dates, roles and locations with concise responsibilities |
+| About / Career | Education/languages moved into About; same five employers, dates, roles and locations; all five native disclosures start collapsed; Codec click, Enter/Space, related links and initial/hashchange targeting PASS |
 | Credentials / CV | Supplied AB-100/AB-620 Learn links in Credentials; PL-600 unlinked; exactly one Download CV, in header; public recruiter PDF at `?v=15`, original filename retained |
 | V4 design | Sky/navy, teal accents, glass cards, local fonts, portrait arrangement and cloud/plane/star/shooting-star scenery retained |
 | Layout | Both themes at 1440/1280/768/390, DPR 1; no overflow or clipped headshot; expanded career records fit; seven extra widths pass |
 | Theme / motion | Toggle and persistence PASS; matching scene only; scenery off under reduced motion; final 100+ remains; simulated hidden timelines pause/resume |
 | Terminal | help, pac certs, pac contact, pac projects, pac copilot, clear PASS in both themes at desktop/mobile and reduced-motion mobile; privacy PASS |
 | Contrast / accessibility | Targeted text minimum 4.55:1 in both themes; zero reported axe A/AA violations across eight expanded samples |
-| Local 404 | v14 bootstrap/assets, theme/scenery, layout and return navigation PASS at 1440/390 both themes |
-| Tests | 407 V5 runner assertions plus 459 `scripts/test-browser.cjs` assertions, 61 DOM assertions, 27 verifier regressions, static verifier, HTML validation and JavaScript syntax PASS |
-| Operations | CV replacement on main with a standard commit/push workflow; v14 CSS/JS; headless Playwright Chromium only; runner/dependencies/cache outside repo; preview 8093; other named ports untouched |
+| Local 404 | v16 bootstrap/assets, theme/scenery, layout and return navigation PASS at 1440/390 both themes |
+| Tests | 547 V5 runner assertions plus 599 `scripts/test-browser.cjs` assertions, 73 DOM assertions, 30 verifier regressions, static verifier, HTML validation and JavaScript syntax PASS |
+| Operations | GG header and default-collapsed Codec follow-up on main; v16 CSS/JS; headless Playwright Chromium only; runner/dependencies/cache outside repo; preview 8093; other named ports untouched |
 
 The CV swap preserves the source PDF bytes: SHA-256 `30c6cac33050f60189a6090bba26c89904fbae630d29b8f90b0d0eb606f18746`. The repository tree contains exactly one PDF, at `assets/resume/Gopinath_Gurusamy_Resume.pdf`, and no copy of the old PDF bytes. Poppler extraction confirms the required name, email, credentials, Case Assistant and Codec Ireland text, with no phone number or private client name. Both rendered pages were inspected. The headless browser download has the same SHA-256 and retains `Gopinath_Gurusamy_Resume.pdf`. Poppler setup is documented in README.md.
 
 ## Evidence and reproduction
 
-- `qa-artifacts/v5-word-counts.json`: identical before/after counting method; all disclosure content and both responsive menus included.
-- `qa-artifacts/v5-playwright-results.json`: 407 browser assertions, contrast/layout/motion and interaction evidence.
-- `qa-artifacts/v5-{1440,1280,768,390}-{light,dark}.png`: eight DPR 1 top captures, visually inspected.
-- `qa-artifacts/v5-1440-full-light.png`: 1440 × 10590 full light page, inspected throughout.
+- `qa-artifacts/gg-header-word-counts.json`: current 1,211-word count, including all disclosure content and both responsive menus; `v5-word-counts.json` retains the earlier trim comparison.
+- `qa-artifacts/v5-playwright-results.json`: 547 browser assertions, contrast/layout/motion and interaction evidence.
+- `qa-artifacts/v5-{1440,1280,768,390}-{light,dark}.png`: eight DPR 1 top captures; desktop light header and mobile light/dark inspected.
+- `qa-artifacts/v5-1440-full-light.png`: full light page; current desktop header and mobile light/dark captures inspected.
+- `/Users/gopinathgurusamy/portfolio-burst/logs/portfolio-gg-header.png`: inspected light-theme desktop header crop.
 - `/private/tmp/portfolio-v3-pw/v5-playwright-runner.cjs`: current headless runner; Chromium cache and dependencies beside it, outside the repo.
 
 With `python3 -m http.server 8093 --bind 127.0.0.1` serving this checkout:
@@ -40,6 +42,7 @@ node --check assets/js/main.js
 NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
 npm exec --cache /private/tmp/portfolio-v3-pw/npm-cache --yes --package html-validate@10.17.0 -- html-validate index.html 404.html
 PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node /private/tmp/portfolio-v3-pw/v5-playwright-runner.cjs
+NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node scripts/test-browser.cjs
 ```
 
 Chromium launches headlessly with `--single-process --no-zygote`; no user Google Chrome app/profile or computer-use tool was used. The owned preview remains on 8093; ports 8080 and 8765 were not used or stopped. Served index bytes match the checkout.
