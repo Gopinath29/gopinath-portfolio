@@ -8,17 +8,19 @@
 | AI & Copilot | Four configured D365 features, Work link, no repeated topics or credential verify links; 41 words |
 | Products | Six distinct capability lines; no 100+ repetition on Power Automate card |
 | Hero | One tagline, name/role/portrait/featured-work pointer, single plain PL-600 + linked AB-100 pair and CTAs |
-| Metrics / privacy | 100+ visible and accessible, including reduced motion/no JS; repo text and filename privacy scan PASS |
+| Metrics / privacy | 100+ visible and accessible, including reduced motion/no JS; repo text, PDF text and filename privacy scan PASS |
 | About / Career | Education/languages moved into About; same five employers, dates, roles and locations with concise responsibilities |
-| Credentials / CV | Supplied AB-100/AB-620 Learn links in Credentials; PL-600 unlinked; exactly one Download CV, in header |
+| Credentials / CV | Supplied AB-100/AB-620 Learn links in Credentials; PL-600 unlinked; exactly one Download CV, in header; public recruiter PDF at `?v=15`, original filename retained |
 | V4 design | Sky/navy, teal accents, glass cards, local fonts, portrait arrangement and cloud/plane/star/shooting-star scenery retained |
 | Layout | Both themes at 1440/1280/768/390, DPR 1; no overflow or clipped headshot; expanded career records fit; seven extra widths pass |
 | Theme / motion | Toggle and persistence PASS; matching scene only; scenery off under reduced motion; final 100+ remains; simulated hidden timelines pause/resume |
 | Terminal | help, pac certs, pac contact, pac projects, pac copilot, clear PASS in both themes at desktop/mobile and reduced-motion mobile; privacy PASS |
 | Contrast / accessibility | Targeted text minimum 4.55:1 in both themes; zero reported axe A/AA violations across eight expanded samples |
-| Local 404 | v13 bootstrap/assets, theme/scenery, layout and return navigation PASS at 1440/390 both themes |
-| Tests | 407 browser assertions, 55 DOM assertions, 18 verifier regressions, static verifier, HTML validation and JavaScript syntax PASS |
-| Operations | No commit or .git access/modification; v13 CSS/JS; headless Playwright Chromium only; runner/dependencies/cache outside repo; preview 8093; other named ports untouched |
+| Local 404 | v14 bootstrap/assets, theme/scenery, layout and return navigation PASS at 1440/390 both themes |
+| Tests | 407 V5 runner assertions plus 459 `scripts/test-browser.cjs` assertions, 61 DOM assertions, 27 verifier regressions, static verifier, HTML validation and JavaScript syntax PASS |
+| Operations | CV replacement on main with a standard commit/push workflow; v14 CSS/JS; headless Playwright Chromium only; runner/dependencies/cache outside repo; preview 8093; other named ports untouched |
+
+The CV swap preserves the source PDF bytes: SHA-256 `30c6cac33050f60189a6090bba26c89904fbae630d29b8f90b0d0eb606f18746`. The repository tree contains exactly one PDF, at `assets/resume/Gopinath_Gurusamy_Resume.pdf`, and no copy of the old PDF bytes. Poppler extraction confirms the required name, email, credentials, Case Assistant and Codec Ireland text, with no phone number or private client name. Both rendered pages were inspected. The headless browser download has the same SHA-256 and retains `Gopinath_Gurusamy_Resume.pdf`. Poppler setup is documented in README.md.
 
 ## Evidence and reproduction
 
@@ -42,4 +44,4 @@ PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node /private/tmp
 
 Chromium launches headlessly with `--single-process --no-zygote`; no user Google Chrome app/profile or computer-use tool was used. The owned preview remains on 8093; ports 8080 and 8765 were not used or stopped. Served index bytes match the checkout.
 
-Deployment, current external-link availability, production nested-404 routing, other engines, assistive technology and physical devices remain unverified. Hidden-document tests are simulated. Axe marks gradient contrast incomplete; conservative compositing and visual review supplement it, without formal accessibility certification. The unchanged binary CV is outside the UTF-8 privacy scan. Earlier V3/V4 report sections and artifacts are historical.
+Deployment, current external-link availability, production nested-404 routing, other engines, assistive technology and physical devices remain unverified. Hidden-document tests are simulated. Axe marks gradient contrast incomplete; conservative compositing and visual review supplement it, without formal accessibility certification. The public recruiter CV replaces the earlier binary CV; PDF text now passes through Poppler and the privacy verifier. Missing Poppler or failed extraction fails verification. Earlier V3/V4 report sections and artifacts are historical.

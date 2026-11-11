@@ -2,9 +2,34 @@
 from pathlib import Path
 import subprocess
 import sys
+import os
+import tempfile
+import zlib
 ROOT=Path(__file__).resolve().parents[1]
-def verify():
-    return subprocess.run([sys.executable,str(ROOT/'scripts/verify.py')],capture_output=True,text=True)
+def verify(env=None):
+    return subprocess.run([sys.executable,str(ROOT/'scripts/verify.py')],capture_output=True,text=True,env=env)
+
+def fixture_pdf(text):
+    """Build a compressed, extractable PDF without a fixture or extra dependency."""
+    escaped=text.replace('\\', '\\\\').replace('(', '\\(').replace(')', '\\)')
+    stream=zlib.compress(f'BT /F1 12 Tf 40 750 Td ({escaped}) Tj ET'.encode('ascii'))
+    objects=[
+        b'<< /Type /Catalog /Pages 2 0 R >>',
+        b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+        b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        f'<< /Length {len(stream)} /Filter /FlateDecode >>\nstream\n'.encode()+stream+b'\nendstream',
+    ]
+    data=b'%PDF-1.4\n'
+    offsets=[0]
+    for number,obj in enumerate(objects,1):
+        offsets.append(len(data))
+        data+=f'{number} 0 obj\n'.encode()+obj+b'\nendobj\n'
+    start=len(data)
+    data+=f'xref\n0 {len(offsets)}\n0000000000 65535 f \n'.encode()
+    data+=b''.join(f'{offset:010d} 00000 n \n'.encode() for offset in offsets[1:])
+    data+=f'trailer\n<< /Size {len(offsets)} /Root 1 0 R >>\nstartxref\n{start}\n%%EOF\n'.encode()
+    return data
 assert verify().returncode==0,'Baseline verifier failed'
 checks=1
 probes=[(ROOT/'qa-artifacts/privacy-probe.txt',bytes((67,67,80,67)).decode().lower())]
@@ -22,6 +47,32 @@ for path,value in probes:
         path.unlink()
 assert verify().returncode==0,'Cleanup verifier failed'
 checks+=1
+# Runtime-only probes exercise compressed PDF text, nested/case-insensitive paths,
+# the QA-directory phone guard, extraction failures and a missing dependency.
+phone=''.join(str(digit) for digit in (2,0,2,5,5,5,0,1,2,3))
+pdf_probes=[
+    (ROOT/'assets/privacy-probe.pdf',fixture_pdf('Public recruiter CV'),None),
+    (ROOT/'assets/resume/privacy-probe.PDF',fixture_pdf(bytes((67,67,80,67)).decode().lower()),'private client name found'),
+    (ROOT/'assets/privacy-probe.pdf',fixture_pdf(phone),'phone-like number found'),
+    (ROOT/'qa-artifacts/privacy-probe.pdf',fixture_pdf('(' + phone[:3] + ') ' + phone[3:6] + '-' + phone[6:]),'phone-like number found'),
+    (ROOT/'assets/privacy-probe.pdf',b'%PDF-invalid','PDF text extraction failed'),
+]
+for path,data,expected in pdf_probes:
+    assert not path.exists(),'PDF probe path already exists'
+    try:
+        path.write_bytes(data)
+        result=verify()
+        if expected:
+            assert result.returncode!=0 and expected in result.stderr,result.stderr
+        else:
+            assert result.returncode==0,result.stderr
+        checks+=1
+    finally:
+        path.unlink()
+with tempfile.TemporaryDirectory(prefix='portfolio-verifier-') as empty_path:
+    result=verify(env={**os.environ,'PATH':empty_path})
+    assert result.returncode!=0 and 'requires pdftotext' in result.stderr,result.stderr
+    checks+=1
 for name, old, new, expected in (
     ('index.html', 'Case summaries that include custom fields', 'Case summaries', 'missing AI & Copilot fact'),
     ('index.html', '<p class="micro">Workflow automation</p>', '<p class="micro">100+ flows</p>', 'Power Automate card must not repeat'),
@@ -50,4 +101,4 @@ for name, old, new, expected in (
     finally:
         path.write_text(original)
 assert verify().returncode==0,'Final cleanup verifier failed'
-print(f'PASS: {checks} verifier regression assertions; privacy, V5 content, background, reduced-motion and cache guards reject broken fixtures; source restored.')
+print(f'PASS: {checks} verifier regression assertions; text/PDF privacy, PDF extraction/dependency, V5 content, background, reduced-motion and cache guards reject broken fixtures; source restored.')

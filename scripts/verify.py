@@ -10,6 +10,8 @@ import re
 import struct
 import sys
 import runpy
+import shutil
+import subprocess
 
 count_words = runpy.run_path(str(Path(__file__).with_name("word-count.py")))["count_words"]
 
@@ -276,6 +278,8 @@ blocked_products = tuple(bytes(value).decode().casefold() for value in (
     (71,83,84,32,70,105,108,105,110,103),
 ))
 text_count = 0
+pdf_count = 0
+pdftotext = shutil.which('pdftotext')
 for directory, directories, filenames in os.walk(ROOT):
     directories[:] = [name for name in directories if name != '.git']
     for name in filenames:
@@ -284,11 +288,28 @@ for directory, directories, filenames in os.walk(ROOT):
         if client_signature in relative.as_posix().casefold():
             errors.append('Repository filename contains the private client name')
         data = file.read_bytes()
-        try:
-            content = data.decode('utf-8')
-        except UnicodeDecodeError:
-            continue  # Binary assets only; all UTF-8 files are scanned regardless of extension.
-        text_count += 1
+        is_pdf = file.suffix.casefold() == '.pdf'
+        if is_pdf:
+            pdf_count += 1
+            if not pdftotext:
+                errors.append(f'{relative}: PDF privacy check requires pdftotext (install Poppler; see README.md)')
+                continue
+            try:
+                extracted = subprocess.run(
+                    [pdftotext, '-layout', str(file), '-'],
+                    capture_output=True, text=True, encoding='utf-8', timeout=30, check=True,
+                )
+                content = extracted.stdout
+                data = content.encode('utf-8')
+            except (OSError, subprocess.SubprocessError, UnicodeError):
+                errors.append(f'{relative}: PDF text extraction failed; privacy could not be checked')
+                continue
+        else:
+            try:
+                content = data.decode('utf-8')
+            except UnicodeDecodeError:
+                continue  # Other binary assets; PDFs are extracted above.
+            text_count += 1
         if client_signature in content.casefold():
             errors.append(f'{relative}: private client name found')
         # Include documentation and QA text as well as all published text assets.
@@ -297,7 +318,7 @@ for directory, directories, filenames in os.walk(ROOT):
         if any(signature in data for signature in private_signatures):
             errors.append(f'{relative}: private contact signature found')
         # Skip gitignored QA JSON (animation timings look like phone numbers). Still scan those files for client/product names.
-        if 'qa-artifacts' not in relative.parts and any(10 <= sum(char.isdigit() for char in match.group()) <= 15 for match in phone_pattern.finditer(content)):
+        if (is_pdf or 'qa-artifacts' not in relative.parts) and any(10 <= sum(char.isdigit() for char in match.group()) <= 15 for match in phone_pattern.finditer(content)):
             errors.append(f'{relative}: phone-like number found')
 
 headshot = ROOT / 'assets/img/headshot.jpg'
@@ -315,4 +336,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=14 assets; {text_count} UTF-8 files scanned; private client name and filename scan clear; published personal-project scan clear; phone privacy clear.')
+print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=14 assets; {text_count} UTF-8 files and {pdf_count} PDFs scanned; private client name and filename scan clear; published personal-project scan clear; text and PDF phone privacy clear.')

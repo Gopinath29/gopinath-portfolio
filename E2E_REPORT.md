@@ -10,7 +10,7 @@ Implementation, automated checks and the requested **headless Playwright/Chromiu
 
 ## Content and provenance
 
-The featured project is now **Case Assistant**, with the subtitle **Copilot Studio agent for Dynamics 365 Customer Service**. The client is described only as **a regulatory body**. Related anchors, career links, terminal output, metadata, generator text, SVG, documentation, QA text and filenames were updated. The client name is not published. A final UTF-8 repository and filename scan finds zero matches for the private name; binary files are not interpreted as text, and `.git` is pruned before traversal.
+The featured project is now **Case Assistant**, with the subtitle **Copilot Studio agent for Dynamics 365 Customer Service**. The client is described only as **a regulatory body**. Related anchors, career links, terminal output, metadata, generator text, SVG, documentation, QA text and filenames were updated. The client name is not published. A final UTF-8 repository and filename scan finds zero matches for the private name; PDF text is now extracted with Poppler for the same privacy checks, and `.git` is pruned before traversal.
 
 All four topics, summary, one-liner, generative orchestration, restricted grounding, reusable user-context Power Automate flow, Assistant Action audit table, configured Dynamics 365 Copilot features, 10 knowledge articles, test-case load, Teams publication, Dataverse solution, source control, ALM runbook, flowcharts, test plan and technology list remain. The four earlier case studies and all five career records retain their factual descriptions, roles, dates and responsibilities. The earlier regulatory project is also described generically as a regulatory body.
 
@@ -308,7 +308,7 @@ No deployment, current external-link HTTP audit, production nested-404 routing, 
 | Additional layouts / 404 | PASS: seven extra widths in both themes; explicit 404 at 1440/390 both themes, v13 assets and return navigation |
 | Preview identity | PASS: served index bytes match this checkout on 8093 |
 
-The targeted contrast model and its conservative scenery/gradient bounds are retained from V4. Axe still marks gradient contrast incomplete; visual review and compositing supplement it. Hidden-document testing overrides `document.hidden` and dispatches `visibilitychange`; OS-level tab hiding is not claimed. Repository-wide UTF-8 and filename scans prune `.git` before traversal. They found no private client identity, unsupported personal-project names or phone; the unchanged binary CV is outside the text scan.
+The targeted contrast model and its conservative scenery/gradient bounds are retained from V4. Axe still marks gradient contrast incomplete; visual review and compositing supplement it. Hidden-document testing overrides `document.hidden` and dispatches `visibilitychange`; OS-level tab hiding is not claimed. Repository-wide UTF-8 and filename scans prune `.git` before traversal. They found no private client identity, unsupported personal-project names or phone; the replacement public recruiter CV is now included through Poppler text extraction. These historical browser results are separate from the CV-swap verification.
 
 ### Visual evidence and reproduction
 

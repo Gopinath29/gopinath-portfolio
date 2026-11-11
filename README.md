@@ -14,7 +14,7 @@ Open <http://127.0.0.1:8093/>. Reuse an existing preview of this repository on t
 
 ## Static hosting and fonts
 
-GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=14`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
+GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=14`. The header CV link uses `?v=15` and explicitly preserves the download filename `Gopinath_Gurusamy_Resume.pdf`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
 
 Sora headings, Plus Jakarta Sans body text and JetBrains Mono labels, credentials and terminal are self-hosted in `assets/fonts/`. The variable fonts come from the official [Google Fonts repository](https://github.com/google/fonts), with their OFL notices beside them. The site needs no font CDN.
 
@@ -28,11 +28,20 @@ Sora headings, Plus Jakarta Sans body text and JetBrains Mono labels, credential
 - PL-600 remains plain text; the hero contains one PL-600 / linked AB-100 pair. AB-100 and AB-620 retain the supplied Microsoft Learn links. Download CV appears once, in the header.
 - The healthcare programme figure remains **100+ Power Automate flows** in visible text, accessible text, counter targets and no-CSS fallback.
 - Core content and native disclosures remain available without JavaScript. Semantic landmarks, keyboard focus, labelled input, a live terminal log and real text spacing support accessibility.
-- Public repository text contains no phone number; the existing binary CV PDF is the specified exception. The client name is not published.
+- Public repository text and the public recruiter CV PDF contain no phone number or private client name. The CV describes the client only as a regulatory body.
 
 ## Word count and checks
 
 Run `scripts/word-count.py` for the full per-section count. It counts body-text whitespace tokens, including disclosures and both responsive menus; scripts, styles, SVG and decorative aria-hidden text are excluded, while metric digits remain. The same method gives 2,038 before and 1,213 after. See the report and `qa-artifacts/v5-word-counts.json` for the comparison.
+
+PDF privacy verification requires Poppler (`pdftotext`) as a development tool, with no production dependency. On macOS install it with `brew install poppler`. If Homebrew is unavailable or read-only, install [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html) outside the repository and run:
+
+```sh
+mkdir -p /private/tmp/cv-swap-poppler/conda-meta
+touch /private/tmp/cv-swap-poppler/conda-meta/history
+XDG_CACHE_HOME=/private/tmp/cv-swap-cache MAMBA_ROOT_PREFIX=/private/tmp/cv-swap-mamba CONDA_PKGS_DIRS=/private/tmp/cv-swap-mamba/pkgs micromamba --no-rc install -y -p /private/tmp/cv-swap-poppler -c conda-forge poppler=26.11.0
+export PATH="/private/tmp/cv-swap-poppler/bin:$PATH"
+```
 
 ```sh
 python3 scripts/word-count.py
@@ -49,7 +58,7 @@ npm install --prefix /private/tmp/portfolio-v3-test jsdom@26.1.0 --no-audit --no
 NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
 ```
 
-The verifier scans all UTF-8 repository files and filenames for the private client name, pruning `.git` before traversal. It also rejects unsupported personal-project names in published assets, documentation and QA text. The verifier also enforces the 1,100–1,300 total / about-350 Work word limits, V5 credential/topic placement, single tagline, distinct product capabilities and About education. Eighteen regression assertions verify broken fixtures are rejected and cleaned up.
+The verifier scans all UTF-8 repository files and filenames for the private client name, pruning `.git` before traversal. It extracts every PDF with `pdftotext -layout` and applies the same privacy rules, including phone checks in QA PDFs. Missing Poppler or failed PDF extraction fails verification. It also rejects unsupported personal-project names in published assets, documentation and QA text. The verifier also enforces the 1,100–1,300 total / about-350 Work word limits, V5 credential/topic placement, single tagline, distinct product capabilities and About education. Twenty-seven regression assertions verify broken fixtures are rejected and cleaned up, including compressed PDF privacy probes generated temporarily and removed after each check.
 
 Generate the original 1200 × 630 light-theme social PNG and SVG companion with `UV_CACHE_DIR=/private/tmp/portfolio-uv-cache uv run --with pillow scripts/generate_og.py`. Pillow is only a development dependency; the generator uses the same local fonts as the site.
 
@@ -71,4 +80,4 @@ This uses cached headless Chromium outside the repo with `--single-process --no-
 
 The earlier v3 visual study extracted tokens with curl from the inline stylesheet at [ramyachinnadurai.com](https://ramyachinnadurai.com/). V4 deliberately changes the accent palette and hero composition and adds original background geometry. The complete list and measured typography, spacing, radii and shadows are saved outside this repository at `~/portfolio-src/REFERENCE_TOKENS.md`. Storytelling, related career records, product accents, numbered mono labels, a small terminal, glass surfaces and portrait-first narrow layouts inform the design. All portfolio markup, styles and interaction logic are original; no reference implementation, copy, photo, illustration or other asset was copied or vendored.
 
-`LICENSE-TEMPLATE.md` remains unchanged as historical documentation of the earlier Astrofy adaptation. The original HTML backup remains at `~/portfolio-src/index-before-v3.html`. No commit, push, deployment or repository metadata modification was performed.
+`LICENSE-TEMPLATE.md` remains unchanged as historical documentation of the earlier Astrofy adaptation. The original HTML backup remains at `~/portfolio-src/index-before-v3.html`.
