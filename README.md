@@ -1,6 +1,6 @@
-# Gopinath Gurusamy — portfolio v3
+# Gopinath Gurusamy — portfolio v4
 
-An original static résumé for a Dynamics 365 CE / Power Platform Solution Architect and Technical Lead. The follow-up retains the v3 case studies, connected career records, terminal and factual content, while adopting the live reference’s sky-blue and navy visual tokens, glass panels and section rhythm.
+An original static résumé for a Dynamics 365 CE / Power Platform Solution Architect and Technical Lead. V4 retains the case studies, connected career records, terminal and factual content, with original sky/cloud and navy/star backgrounds, teal-blue accents and a new hero composition. White glass cards and the existing fonts and section rhythm remain.
 
 Case Assistant leads Work with the subtitle “Copilot Studio agent for Dynamics 365 Customer Service”. Its client is described only as a regulatory body. AI & Copilot presents the four delivered topics, configured Dynamics 365 Copilot features and supplied AB-100 / AB-620 verification links. Six product cards cover Case Assistant, Power Automate, Dataverse, Dynamics 365 Customer Service, Power Apps and Power Pages. Monospaced call lines are illustrative.
 
@@ -10,17 +10,19 @@ Case Assistant leads Work with the subtitle “Copilot Studio agent for Dynamics
 python3 -m http.server 8093 --bind 127.0.0.1
 ```
 
-Open <http://127.0.0.1:8093/>. Reuse an existing preview of this repository on that port. The current optional Pages-style handler is `qa-artifacts/v3-pages-preview.py`; it additionally simulates the `/gopinath-portfolio/` prefix and nested custom 404 responses. Leave the existing preview services on other ports alone.
+Open <http://127.0.0.1:8093/>. Reuse an existing preview of this repository on that port. V4 QA uses the plain Python server above. The historical optional Pages-style handler is `qa-artifacts/v3-pages-preview.py`; it additionally simulates the `/gopinath-portfolio/` prefix and nested custom 404 responses. Leave the existing preview services on other ports alone.
 
 ## Static hosting and fonts
 
-GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=11`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
+GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=12`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
 
 Sora headings, Plus Jakarta Sans body text and JetBrains Mono labels, credentials and terminal are self-hosted in `assets/fonts/`. The variable fonts come from the official [Google Fonts repository](https://github.com/google/fonts), with their OFL notices beside them. The site needs no font CDN.
 
 ## Content and interactions
 
-- Theme selection persists; system colour preference applies until a valid selection is saved. Storage failure still allows switching. Reduced motion disables animation, transitions and smooth scrolling.
+- The hero pairs a compact portrait/profile rail with the headline, followed by a separate credential/action band. On small screens the portrait becomes a compact horizontal identity card. PL-600 and linked AB-100 stay together near the top.
+- Original CSS/SVG scenery sits behind the page: three drifting clouds and two planes in light mode; 28 twinkling stars and two occasional shooting trails in dark mode. It is decorative, fixed, pointer-transparent and uses transform/opacity animations. There is no JavaScript render loop, particle dependency or downloaded artwork.
+- Theme selection persists; system colour preference applies until a valid selection is saved. Storage failure still allows switching. Reduced motion removes the entire scenery layer and disables animation, transitions and smooth scrolling. Visibility changes pause and resume the CSS animation timelines; the other theme’s scene is removed from rendering.
 - All five career records, four earlier case studies, services, expertise, certifications, education, languages, writing and contact facts remain. Native disclosures retain their detailed content. Related links open career records.
 - The terminal accepts `help`, `pac certs`, `pac contact`, `pac projects`, `pac copilot` and `clear`. Use Enter or Run. It is a local portfolio interaction; output is text and does not execute system commands.
 - PL-600 remains plain text; the hero contains one PL-600 / linked AB-100 pair. AB-100 and AB-620 retain the supplied Microsoft Learn links. Download CV appears once, in the header.
@@ -44,14 +46,26 @@ npm install --prefix /private/tmp/portfolio-v3-test jsdom@26.1.0 --no-audit --no
 NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
 ```
 
-The verifier scans all UTF-8 repository files and filenames for the private client name, pruning `.git` before traversal. It also rejects unsupported personal-project names in published assets, documentation and QA text. Negative regression probes prove that these checks fail when prohibited content is introduced and pass after cleanup.
+The verifier scans all UTF-8 repository files and filenames for the private client name, pruning `.git` before traversal. It also rejects unsupported personal-project names in published assets, documentation and QA text. Negative regression probes prove that privacy, background markup, reduced-motion and cache-version checks fail when broken and pass after cleanup.
 
 Generate the original 1200 × 630 light-theme social PNG and SVG companion with `UV_CACHE_DIR=/private/tmp/portfolio-uv-cache uv run --with pillow scripts/generate_og.py`. Pillow is only a development dependency; the generator uses the same local fonts as the site.
 
 See [E2E_REPORT.md](E2E_REPORT.md) and [VERIFICATION.md](VERIFICATION.md) for current test evidence and browser-access limits. Historical screenshots must not be treated as verification of this follow-up.
 
+## V4 accents and browser QA
+
+Light: accent/button `#075d73`, link/heading ink `#064c60`, secondary accent `#087e96`. Dark: accent/link/button `#80ded5`, highlight `#73dbdf`, button ink `#081631`. Focus uses the theme accent; terminal controls use their high-contrast panel highlight.
+
+The light sky base is `#91d6ff` to give the accent enough contrast; dark glow alpha is `.02` and star/trail opacity is bounded to preserve muted text contrast. Measured text minima are 4.55:1 in both themes; tested UI boundaries are at least 4.70:1. See the report for the conservative scenery/gradient model and its limits.
+
+```sh
+NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node qa-artifacts/v4-playwright-runner.cjs
+```
+
+This uses cached headless Chromium outside the repo with `--single-process --no-zygote`. Eight DPR 1 top captures and one full light page are in `qa-artifacts/v4-*.png`; results are in `qa-artifacts/v4-playwright-results.json`. No user browser app or profile is used.
+
 ## Design provenance
 
-Visual token values were extracted with curl from the inline stylesheet at [ramyachinnadurai.com](https://ramyachinnadurai.com/). The complete list and measured typography, spacing, radii and shadows are saved outside this repository at `~/portfolio-src/REFERENCE_TOKENS.md`. Storytelling, related career records, product accents, numbered mono labels, a small terminal, glass surfaces and portrait-first narrow layouts inform the design. All portfolio markup, styles and interaction logic are original; no reference implementation, copy, photo, illustration or other asset was copied or vendored.
+The earlier v3 visual study extracted tokens with curl from the inline stylesheet at [ramyachinnadurai.com](https://ramyachinnadurai.com/). V4 deliberately changes the accent palette and hero composition and adds original background geometry. The complete list and measured typography, spacing, radii and shadows are saved outside this repository at `~/portfolio-src/REFERENCE_TOKENS.md`. Storytelling, related career records, product accents, numbered mono labels, a small terminal, glass surfaces and portrait-first narrow layouts inform the design. All portfolio markup, styles and interaction logic are original; no reference implementation, copy, photo, illustration or other asset was copied or vendored.
 
 `LICENSE-TEMPLATE.md` remains unchanged as historical documentation of the earlier Astrofy adaptation. The original HTML backup remains at `~/portfolio-src/index-before-v3.html`. No commit, push, deployment or repository metadata modification was performed.

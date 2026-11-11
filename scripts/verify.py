@@ -175,19 +175,22 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
         }
         if len(page.headshots) != 1 or any(page.headshots[0].get(key) != value for key, value in expected_headshot.items()):
             errors.append(f'{filename}: missing or incorrect hero headshot')
+    if filename in ('index.html', '404.html'):
+        if not re.search(r'<div class="atmosphere"[^>]*aria-hidden="true"', html):
+            errors.append(f'{filename}: missing decorative background layer')
     if filename == '404.html':
         # The 404 bootstrap requests assets only after resolving its project base.
         for value in re.findall(r"(?:stylesheet\.href|script\.src|icon\.href)\s*=\s*['\"]([^'\"]+)['\"]", html):
-            page.references.append(('script' if value.endswith('.js?v=11') else 'link', 'src' if value.endswith('.js?v=11') else 'href', value))
+            page.references.append(('script' if value.endswith('.js?v=12') else 'link', 'src' if value.endswith('.js?v=12') else 'href', value))
             checked += 1
             if not (ROOT / urlsplit(value).path).is_file():
                 errors.append(f'{filename}: missing bootstrap asset {value}')
-        if "script.src = 'assets/js/main.js?v=11'" not in html:
-            errors.append(f'{filename}: expected v=11 bootstrap JavaScript')
+        if "script.src = 'assets/js/main.js?v=12'" not in html:
+            errors.append(f'{filename}: expected v=12 bootstrap JavaScript')
     for tag, attr, value in page.references:
         if (tag, attr) in (('link', 'href'), ('script', 'src')) and urlsplit(value).path in ('assets/css/styles.css', 'assets/js/main.js'):
-            if urlsplit(value).query != 'v=11':
-                errors.append(f'{filename}: expected v=11 cache-busting for {value}')
+            if urlsplit(value).query != 'v=12':
+                errors.append(f'{filename}: expected v=12 cache-busting for {value}')
     for schema in page.schemas:
         if schema.get('@type') != 'Person' or 'telephone' in schema:
             errors.append(f'{filename}: incorrect Person metadata')
@@ -200,6 +203,10 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
             expected = VERIFICATION_URLS.get(credential.get('identifier'))
             if (expected and credential.get('url') != expected) or (not expected and 'url' in credential):
                 errors.append(f'{filename}: incorrect credential verification metadata')
+
+css = (ROOT / 'assets/css/styles.css').read_text()
+if not re.search(r'@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\.atmosphere\{display:none!important', css):
+    errors.append('Background must be fully disabled under reduced motion')
 
 # Construct private-number signatures without placing them in public source.
 private_signatures = [bytes((57, 53, 54, 54)), bytes((43, 57, 49))]
@@ -252,4 +259,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; header-only CV; 100+ flows; Case Assistant first; AI & Copilot facts and credentials; six supported product cards; accessible terminal; v=11 assets; {text_count} UTF-8 files scanned; private client name and filename scan clear; published personal-project scan clear; phone privacy clear.')
+print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; header-only CV; 100+ flows; Case Assistant first; AI & Copilot facts and credentials; six supported product cards; accessible terminal; decorative background and reduced motion; v=12 assets; {text_count} UTF-8 files scanned; private client name and filename scan clear; published personal-project scan clear; phone privacy clear.')

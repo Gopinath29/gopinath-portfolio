@@ -7,10 +7,36 @@
   try { chosenTheme = localStorage.getItem('portfolio-theme'); } catch { /* Storage is optional. */ }
   if (chosenTheme !== 'light' && chosenTheme !== 'dark') chosenTheme = undefined;
   const toggle = document.querySelector('.theme-toggle');
+  const atmosphere = document.querySelector('.atmosphere');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function syncAtmosphere() {
+    if (!atmosphere) return;
+    atmosphere.dataset.scene = root.dataset.theme;
+    atmosphere.hidden = reducedMotion.matches;
+    atmosphere.dataset.state = reducedMotion.matches ? 'disabled' : document.hidden ? 'paused' : 'running';
+  }
+  // A bounded, deterministic star field; no particles, timers or per-frame JS.
+  const starField = atmosphere?.querySelector('.star-field');
+  if (starField) {
+    const stars = document.createDocumentFragment();
+    for (let i = 0; i < 28; i++) {
+      const star = document.createElement('span');
+      star.className = 'star';
+      star.style.left = `${(i * 37 + 7) % 100}%`;
+      star.style.top = `${(i * 23 + 3) % 100}%`;
+      star.style.animationDelay = `${-(i % 9)}s`;
+      star.style.animationDuration = `${5 + i % 6}s`;
+      stars.append(star);
+    }
+    starField.append(stars);
+  }
+  document.addEventListener('visibilitychange', syncAtmosphere);
+  reducedMotion.addEventListener('change', syncAtmosphere);
   function applyTheme(theme) {
     root.dataset.theme = theme;
+    syncAtmosphere();
     const themeColour = document.querySelector('meta[name="theme-color"]');
-    if (themeColour) themeColour.content = theme === 'dark' ? '#081631' : '#7ec8ff';
+    if (themeColour) themeColour.content = theme === 'dark' ? '#081631' : '#91d6ff';
     if (toggle) {
       toggle.setAttribute('aria-pressed', String(theme === 'dark'));
       toggle.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);

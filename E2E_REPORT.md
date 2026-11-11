@@ -136,7 +136,7 @@ NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/pr
 
 Fresh final static checks pass: `python3 scripts/verify.py`, six verifier regression assertions, JavaScript syntax, HTML validation and 55 DOM assertions. The earlier six-destination external-link HTTP audit remains retained evidence; the CSS-only fixes do not change those destinations. No deployment, other browser engine, screen reader, physical device, touch input or live client-system testing is claimed. Full formal accessibility conformance and the production host's nested-404 routing remain unverified; all required local headless checks are complete.
 
-## E2E SUMMARY
+## E2E SUMMARY — preserved v3 results
 
 - **Result:** requested local headless acceptance complete; 233 browser assertions pass, plus 55 DOM and six verifier assertions, HTML/JS validation and final content/privacy verification.
 - **Visual evidence:** eight final index viewports, one full page, four 404 captures, six reference comparisons and six supplemental captures, visually reviewed. No horizontal overflow at required widths or seven extra breakpoints in either theme.
@@ -145,3 +145,103 @@ Fresh final static checks pass: `python3 scripts/verify.py`, six verifier regres
 - **Remaining visual gaps:** framed photo, denser résumé content and different hero text proportions; reference illustrations/cut-out/particles intentionally omitted.
 - **Unverified:** deployment/production routing, other engines, assistive technology and physical devices; gradient contrast is supplemented by targeted/manual review rather than a formal audit.
 - **Repository/runtime:** no commits or `.git` operations, dependencies/browser cache outside the repo, headless-only browser work, preview on 8093; ports 8080 and 8765 untouched.
+
+
+## V4 — original scenery, teal-blue accents and hero composition — 11 November 2026
+
+Completed locally in the requested checkout. Only HTML, CSS and JavaScript are used in production. The preview ran at `http://127.0.0.1:8093/` with `python3 -m http.server 8093 --bind 127.0.0.1`; served index bytes were compared to the checkout. No commit or `.git` operation was performed. Ports 8080 and 8765 were left untouched. The owned 8093 QA server was stopped after verification.
+
+### Implementation and provenance
+
+- The hero now has a compact portrait/profile rail beside a wide headline and role statement. A separate band spans the hero below them, grouping the single plain PL-600 / linked AB-100 pair with the CTAs. Tablets retain the compact portrait rail; phones use a horizontal identity card above the headline. The image remains inside its frame at `object-position: center top`; the full square source preserves the hairline. Download CV stays only in the header.
+- Original inline SVG clouds and two plane silhouettes decorate light mode. Twenty-eight deterministic CSS stars and two occasional shooting trails decorate dark mode. The fixed, inert, pointer-transparent layer sits below content in an isolated stacking context. No geometry changes page layout. No external images, artwork or animation libraries were added.
+- Only transform and opacity animate. There is no JavaScript per-frame loop or timer. `visibilitychange` reads `document.hidden` and pauses every CSS timeline, then resumes it. Reduced motion hides the entire layer and removes all its animations, including when the preference changes while the page is open. The same behavior is applied to the 404 page.
+- Saved theme selection wins over system settings; an unsaved system preference change updates both palette and scenery. The inactive scene is `display:none`, so its CSS animations do not run.
+- Local CSS and JavaScript use `?v=12` in the index, 404 bootstrap/noscript fallback and verifier. Fonts, all career records, Case Assistant, AI & Copilot, six product cards, terminal and factual text remain.
+
+### Tokens and contrast adjustments
+
+| Token/use | Light | Dark |
+| --- | --- | --- |
+| Accent / focus | `#075d73` | `#80ded5` |
+| Accent ink / text links | `#064c60` | `#80ded5` |
+| Secondary accent | `#087e96` | `#73dbdf` |
+| Primary button | `#075d73` | `#80ded5` |
+| Primary button text | `#ffffff` | `#081631` |
+| HUD labels | `#064c60` | `#73dbdf` |
+| Terminal highlight / Run | `#7fd8ff` | `#73dbdf` |
+| Sky / page base | `#91d6ff` | `#081631` |
+| Hero sky | `#a8dff6` | `#0d2247` |
+
+The initial teal accent measured 4.11:1 on the previous light sky. The non-brand sky base was lightened to `#91d6ff` first, producing 4.70:1 for the accent and 6.00:1 for link ink on that base. Planes are white, so light scenery brightens the sky. In dark mode the radial glow alpha was reduced from `.12` to `.02`, twinkles peak at `.08`, and shooting trails peak at `.0504` effective opacity. This preserves contrast even under the conservative bound where both glow maxima, a twinkle and a shooting trail coincide. Theme-toggle and copy-button borders now use accent ink so control edges remain distinguishable. Terminal buttons use the panel highlight and panel ink.
+
+The targeted check composites text and ancestor surfaces over sky endpoints and the conservative scenery/glow bound; it also accounts for the lightening at the top of primary-button gradients. Every rendered text node is checked, including all expanded disclosures. Normal text requires 4.5:1; large text requires 3:1. Primary-button fills and tested control edges require 3:1.
+
+| Category minimum | Light | Dark |
+| --- | --- | --- |
+| All text | 4.55:1 | 4.55:1 |
+| Muted text | 6.16:1 | 4.99:1 |
+| Links | 4.70:1 | 5.90:1 |
+| Button text | 5.60:1 | 11.83:1 |
+| Tested UI boundaries | 4.70:1 | 6.23:1 |
+
+This is a targeted AA check with conservative compositing and visual review. Axe reports no A/AA violations in the eight expanded index samples, but marks gradient color contrast incomplete; formal accessibility certification is not claimed.
+
+### Browser and regression results
+
+**PASS: 407 main browser assertions plus 12 supplemental animation-phase/counter assertions**, eight main samples, zero page/request errors, zero reported axe A/AA violations. Evidence: `qa-artifacts/v4-playwright-results.json` and `qa-artifacts/v4-motion-details.json`. Browser: Playwright headless Chromium 158.0.8127.18, DPR 1, with `--single-process --no-zygote`. Dependencies and browser cache remain outside the repo at `/private/tmp/portfolio-v3-pw`. No Google Chrome app/profile, connected browser or computer-use tool was used.
+
+| Coverage | Result |
+| --- | --- |
+| 1440 × 900, 1280 × 900, 768 × 1024, 390 × 844; both themes | PASS; no horizontal overflow, all fonts loaded, headshot inside frame and aligned to top |
+| Expanded disclosures at all eight combinations | PASS; no overflow, text contrast checks and axe A/AA checks |
+| Motion vs reduced-motion layout | PASS; maximum rectangle delta 0 px in every main sample; initial observed CLS 0 |
+| Background selection | PASS; five light CSS animations or thirty dark CSS animations, with only the matching scene rendered; phase sampling confirms clouds/planes move and twinkles/shooting trails change opacity |
+| Hidden-tab simulation at all eight combinations | PASS; 5 light / 30 dark timelines paused with unchanged current times, then resumed and advanced |
+| Reduced-motion change at all eight combinations | PASS; layer hidden, no running scenery or other animations, final 100+ retained; motion resumes when allowed |
+| Reduced motion on initial load | PASS in both themes at 390; terminal works; theme toggling keeps scenery disabled; supplemental checks confirm all five counters retain their final target values |
+| Keyboard theme toggle, accent and persistence | PASS at all four widths in both directions; actual reload retains scene and theme; saved preference wins |
+| Unsaved system theme change | PASS in both directions; matching scene follows the system |
+| Terminal keyboard commands | PASS at 1440 and 390 in both themes and reduced-motion mobile: help, certs, contact, projects, copilot and clear; privacy and safe text checks |
+| Existing interactions | PASS; related career opens, actual clipboard copy and valid CV PDF download |
+| Extra widths | PASS at 320, 360, 650, 960, 1000, 1100 and 1200 in both themes |
+| Explicit 404 | PASS at 1440 and 390, both themes; scenery selection, contrast, overflow and return navigation |
+| Static/content/privacy | PASS; verifier, HTML validation, JS syntax, 55 retained DOM assertions and 9 verifier regression assertions |
+
+Hidden-tab behavior is tested by overriding `document.hidden` and dispatching `visibilitychange`, as requested; an OS-level tab-hide/minimize action is not claimed. Layout comparison measures the hero, story, credential band, portrait/frame and major downstream section bounds against an emulated reduced-motion baseline. Initial CLS was also observed in Chromium.
+
+### Screenshots written and visually inspected
+
+- `qa-artifacts/v4-1440-light.png`, `qa-artifacts/v4-1440-dark.png`.
+- `qa-artifacts/v4-1280-light.png`, `qa-artifacts/v4-1280-dark.png`.
+- `qa-artifacts/v4-768-light.png`, `qa-artifacts/v4-768-dark.png`.
+- `qa-artifacts/v4-390-light.png`, `qa-artifacts/v4-390-dark.png`.
+- `qa-artifacts/v4-1440-full-light.png` — 1440 × 12298, reviewed in seven consecutive crops outside the repo.
+
+All eight viewport screenshots are at the top of the page with DPR 1. Review confirmed the compact portrait, intact hairline, readable content over scenery, and retained downstream section layout. The dark scenery is intentionally faint. V3 screenshots and notes above are historical; the V4 files are the current evidence.
+
+### Reproduction and limits
+
+With the plain Python server on 8093 and the cached test dependencies available:
+
+```sh
+python3 scripts/verify.py
+python3 scripts/test-verifier.py
+node --check assets/js/main.js
+NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
+npm exec --cache /private/tmp/portfolio-v3-pw/npm-cache --yes --package html-validate@10.17.0 -- html-validate index.html 404.html
+NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node qa-artifacts/v4-playwright-runner.cjs
+NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node qa-artifacts/v4-motion-detail-runner.cjs
+```
+
+No deployment, current external-link HTTP audit, production nested-404 routing, other browser engine, screen reader or physical-device testing was performed in V4. The supplied Learn links and local references are checked statically. The multiset of visible body-text tokens was compared to the saved v3 served HTML and is identical; only hero order changed. No new content, client identity or personal-project claims were introduced.
+
+## E2E SUMMARY
+
+- **Result:** V4 implemented and locally verified; 407 main and 12 supplemental headless browser assertions pass, plus 55 DOM assertions, 9 verifier regressions, HTML validation, JavaScript syntax and final content/privacy verification.
+- **Design:** original cloud/plane and twinkle/shooting-star backgrounds; teal-blue accent system; compact portrait rail plus separate credential/action band, with a horizontal identity card on phones.
+- **Motion/accessibility:** fully disabled under reduced motion; hidden timelines stop/resume; no motion-related layout delta; all targeted text and control contrast thresholds pass; zero reported axe A/AA violations.
+- **Evidence:** eight required DPR 1 top screenshots and one full light page, all visually inspected, plus the reproducible browser runner and JSON results in `qa-artifacts/`.
+- **Preservation:** factual content, privacy, Case Assistant first, AI & Copilot, all six product cards, five JSON-LD credentials, supplied Learn links, header-only CV and 100+ flows remain intact.
+- **Limits:** simulated hidden-document event; no production deployment/routing, new external-link audit, other engines, assistive technology, physical devices or formal accessibility certification.
+- **Repository/runtime:** no commit or `.git` access/modification; headless Chromium and test dependencies outside the repo; preview used only 8093; ports 8080 and 8765 untouched.

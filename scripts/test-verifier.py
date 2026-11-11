@@ -22,4 +22,20 @@ for path,value in probes:
         path.unlink()
 assert verify().returncode==0,'Cleanup verifier failed'
 checks+=1
-print(f'PASS: {checks} verifier regression assertions; repository text and published-asset probes rejected, fixtures removed.')
+for name, old, new, expected in (
+    ('index.html', 'class="atmosphere"', 'class="missing-scene"', 'missing decorative background layer'),
+    ('assets/css/styles.css', '.atmosphere{display:none!important}', '.atmosphere{display:block!important}', 'Background must be fully disabled'),
+    ('index.html', 'styles.css?v=12', 'styles.css?v=11', 'expected v=12 cache-busting'),
+):
+    path=ROOT/name
+    original=path.read_text()
+    assert old in original, 'Regression target missing'
+    try:
+        path.write_text(original.replace(old,new))
+        result=verify()
+        assert result.returncode!=0 and expected in result.stderr,result.stderr
+        checks+=1
+    finally:
+        path.write_text(original)
+assert verify().returncode==0,'Final cleanup verifier failed'
+print(f'PASS: {checks} verifier regression assertions; privacy, background, reduced-motion and cache guards reject broken fixtures; source restored.')
