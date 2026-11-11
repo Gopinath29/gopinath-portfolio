@@ -23,9 +23,21 @@ for path,value in probes:
 assert verify().returncode==0,'Cleanup verifier failed'
 checks+=1
 for name, old, new, expected in (
+    ('index.html', 'Case summaries that include custom fields', 'Case summaries', 'missing AI & Copilot fact'),
+    ('index.html', '<p class="micro">Workflow automation</p>', '<p class="micro">100+ flows</p>', 'Power Automate card must not repeat'),
+    ('index.html', 'Architecture that holds up.', 'Design authority.', 'redundant hero tagline remains'),
+    ('index.html', 'Kongu Engineering College', 'College', 'About must contain education/languages'),
+    ('index.html', '<div class="copilot-config"><ul>', '<div class="copilot-config"><a href="https://learn.microsoft.com/en-us/users/gopinathgurusamy-9343/credentials/33c24ca4ad0be38e" target="_blank" rel="noopener">AB-620</a><ul>', 'AI & Copilot must not repeat credential verify links'),
+    ('index.html', 'href="#case-assistant">Explore the Case Assistant solution', 'href="#work">Explore the Case Assistant solution', 'AI & Copilot must link to Case Assistant work'),
+    ('index.html', '<p class="chapter-description">Configured Dynamics', '<p class="chapter-description">Find case documents. Configured Dynamics', 'AI & Copilot must not repeat Work topics'),
+    ('index.html', '<h1 id="hero-title">', '<h1 id="hero-title">' + 'extra ' * 100, 'total word count must be'),
+    ('index.html', 'Help case officers at a regulatory body', 'extra ' * 40 + 'Help case officers at a regulatory body', 'Work must be about 350 words'),
     ('index.html', 'class="atmosphere"', 'class="missing-scene"', 'missing decorative background layer'),
     ('assets/css/styles.css', '.atmosphere{display:none!important}', '.atmosphere{display:block!important}', 'Background must be fully disabled'),
-    ('index.html', 'styles.css?v=12', 'styles.css?v=11', 'expected v=12 cache-busting'),
+    ('index.html', 'styles.css?v=14', 'styles.css?v=11', 'expected v=14 cache-busting'),
+    ('assets/js/main.js', 'i < 104', 'i < 28', 'Dark scenery must create 80–120 stars'),
+    ('assets/css/styles.css', 'z-index:0;pointer-events:none', 'z-index:-1;pointer-events:none', 'Background must paint above the page wash'),
+    ('assets/css/styles.css', 'animation:shoot 12s', 'animation:shoot 27s', 'Dark shooting trails must retain'),
 ):
     path=ROOT/name
     original=path.read_text()
@@ -38,4 +50,4 @@ for name, old, new, expected in (
     finally:
         path.write_text(original)
 assert verify().returncode==0,'Final cleanup verifier failed'
-print(f'PASS: {checks} verifier regression assertions; privacy, background, reduced-motion and cache guards reject broken fixtures; source restored.')
+print(f'PASS: {checks} verifier regression assertions; privacy, V5 content, background, reduced-motion and cache guards reject broken fixtures; source restored.')

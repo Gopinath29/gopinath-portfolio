@@ -1,8 +1,8 @@
-# Gopinath Gurusamy — portfolio v4
+# Gopinath Gurusamy — portfolio v5
 
-An original static résumé for a Dynamics 365 CE / Power Platform Solution Architect and Technical Lead. V4 retains the case studies, connected career records, terminal and factual content, with original sky/cloud and navy/star backgrounds, teal-blue accents and a new hero composition. White glass cards and the existing fonts and section rhythm remain.
+An original static résumé for a Dynamics 365 CE / Power Platform Solution Architect and Technical Lead. V5 trims the page to 1,213 words while retaining the V4 sky/cloud and navy/star backgrounds, teal-blue accents and hero composition. White glass cards and the existing fonts and section rhythm remain.
 
-Case Assistant leads Work with the subtitle “Copilot Studio agent for Dynamics 365 Customer Service”. Its client is described only as a regulatory body. AI & Copilot presents the four delivered topics, configured Dynamics 365 Copilot features and supplied AB-100 / AB-620 verification links. Six product cards cover Case Assistant, Power Automate, Dataverse, Dynamics 365 Customer Service, Power Apps and Power Pages. Monospaced call lines are illustrative.
+Case Assistant leads Work with the subtitle “Copilot Studio agent for Dynamics 365 Customer Service”. Its client is described only as a regulatory body. The 350-word Work section holds the four Case Assistant topics and four shorter real case studies. AI & Copilot covers the four configured Dynamics 365 Copilot features and links to Work; supplied AB-100 / AB-620 verification links stay in Credentials, with the single linked AB-100 hero exception. Six product cards cover Case Assistant, Power Automate, Dataverse, Dynamics 365 Customer Service, Power Apps and Power Pages. Monospaced call lines are illustrative.
 
 ## Preview
 
@@ -10,29 +10,32 @@ Case Assistant leads Work with the subtitle “Copilot Studio agent for Dynamics
 python3 -m http.server 8093 --bind 127.0.0.1
 ```
 
-Open <http://127.0.0.1:8093/>. Reuse an existing preview of this repository on that port. V4 QA uses the plain Python server above. The historical optional Pages-style handler is `qa-artifacts/v3-pages-preview.py`; it additionally simulates the `/gopinath-portfolio/` prefix and nested custom 404 responses. Leave the existing preview services on other ports alone.
+Open <http://127.0.0.1:8093/>. Reuse an existing preview of this repository on that port. V5 QA uses the plain Python server above. The historical optional Pages-style handler is `qa-artifacts/v3-pages-preview.py`; it additionally simulates the `/gopinath-portfolio/` prefix and nested custom 404 responses. Leave the existing preview services on other ports alone.
 
 ## Static hosting and fonts
 
-GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=12`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
+GitHub Pages serves the repository root at <https://gopinath29.github.io/gopinath-portfolio/>. No build step, framework, backend, analytics or production dependencies are required. CSS and JavaScript paths are relative and use `?v=14`. The 404 page shares the same theme and type system and resolves the project base before loading its assets.
 
 Sora headings, Plus Jakarta Sans body text and JetBrains Mono labels, credentials and terminal are self-hosted in `assets/fonts/`. The variable fonts come from the official [Google Fonts repository](https://github.com/google/fonts), with their OFL notices beside them. The site needs no font CDN.
 
 ## Content and interactions
 
-- The hero pairs a compact portrait/profile rail with the headline, followed by a separate credential/action band. On small screens the portrait becomes a compact horizontal identity card. PL-600 and linked AB-100 stay together near the top.
+- The hero uses one tagline: “Architecture that holds up. Engineering that follows through.” It pairs a compact portrait/profile rail with the headline, followed by a separate credential/action band. On small screens the portrait becomes a compact horizontal identity card. PL-600 and linked AB-100 stay together near the top.
 - Original CSS/SVG scenery sits behind the page: three drifting clouds and two planes in light mode; 28 twinkling stars and two occasional shooting trails in dark mode. It is decorative, fixed, pointer-transparent and uses transform/opacity animations. There is no JavaScript render loop, particle dependency or downloaded artwork.
 - Theme selection persists; system colour preference applies until a valid selection is saved. Storage failure still allows switching. Reduced motion removes the entire scenery layer and disables animation, transitions and smooth scrolling. Visibility changes pause and resume the CSS animation timelines; the other theme’s scene is removed from rendering.
-- All five career records, four earlier case studies, services, expertise, certifications, education, languages, writing and contact facts remain. Native disclosures retain their detailed content. Related links open career records.
+- All five career records and five Work projects remain in concise form. Career records retain native disclosures; related links open them. Education and languages now sit within About. Services, expertise, certifications, writing and contact remain.
 - The terminal accepts `help`, `pac certs`, `pac contact`, `pac projects`, `pac copilot` and `clear`. Use Enter or Run. It is a local portfolio interaction; output is text and does not execute system commands.
 - PL-600 remains plain text; the hero contains one PL-600 / linked AB-100 pair. AB-100 and AB-620 retain the supplied Microsoft Learn links. Download CV appears once, in the header.
 - The healthcare programme figure remains **100+ Power Automate flows** in visible text, accessible text, counter targets and no-CSS fallback.
 - Core content and native disclosures remain available without JavaScript. Semantic landmarks, keyboard focus, labelled input, a live terminal log and real text spacing support accessibility.
 - Public repository text contains no phone number; the existing binary CV PDF is the specified exception. The client name is not published.
 
-## Checks
+## Word count and checks
+
+Run `scripts/word-count.py` for the full per-section count. It counts body-text whitespace tokens, including disclosures and both responsive menus; scripts, styles, SVG and decorative aria-hidden text are excluded, while metric digits remain. The same method gives 2,038 before and 1,213 after. See the report and `qa-artifacts/v5-word-counts.json` for the comparison.
 
 ```sh
+python3 scripts/word-count.py
 python3 scripts/verify.py
 python3 scripts/test-verifier.py
 node --check assets/js/main.js
@@ -46,23 +49,23 @@ npm install --prefix /private/tmp/portfolio-v3-test jsdom@26.1.0 --no-audit --no
 NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
 ```
 
-The verifier scans all UTF-8 repository files and filenames for the private client name, pruning `.git` before traversal. It also rejects unsupported personal-project names in published assets, documentation and QA text. Negative regression probes prove that privacy, background markup, reduced-motion and cache-version checks fail when broken and pass after cleanup.
+The verifier scans all UTF-8 repository files and filenames for the private client name, pruning `.git` before traversal. It also rejects unsupported personal-project names in published assets, documentation and QA text. The verifier also enforces the 1,100–1,300 total / about-350 Work word limits, V5 credential/topic placement, single tagline, distinct product capabilities and About education. Eighteen regression assertions verify broken fixtures are rejected and cleaned up.
 
 Generate the original 1200 × 630 light-theme social PNG and SVG companion with `UV_CACHE_DIR=/private/tmp/portfolio-uv-cache uv run --with pillow scripts/generate_og.py`. Pillow is only a development dependency; the generator uses the same local fonts as the site.
 
 See [E2E_REPORT.md](E2E_REPORT.md) and [VERIFICATION.md](VERIFICATION.md) for current test evidence and browser-access limits. Historical screenshots must not be treated as verification of this follow-up.
 
-## V4 accents and browser QA
+## Preserved V4 accents and current V5 browser QA
 
 Light: accent/button `#075d73`, link/heading ink `#064c60`, secondary accent `#087e96`. Dark: accent/link/button `#80ded5`, highlight `#73dbdf`, button ink `#081631`. Focus uses the theme accent; terminal controls use their high-contrast panel highlight.
 
 The light sky base is `#91d6ff` to give the accent enough contrast; dark glow alpha is `.02` and star/trail opacity is bounded to preserve muted text contrast. Measured text minima are 4.55:1 in both themes; tested UI boundaries are at least 4.70:1. See the report for the conservative scenery/gradient model and its limits.
 
 ```sh
-NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node qa-artifacts/v4-playwright-runner.cjs
+PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node /private/tmp/portfolio-v3-pw/v5-playwright-runner.cjs
 ```
 
-This uses cached headless Chromium outside the repo with `--single-process --no-zygote`. Eight DPR 1 top captures and one full light page are in `qa-artifacts/v4-*.png`; results are in `qa-artifacts/v4-playwright-results.json`. No user browser app or profile is used.
+This uses cached headless Chromium outside the repo with `--single-process --no-zygote`. 407 browser assertions pass. Eight DPR 1 top captures and one full light page are in `qa-artifacts/v5-*.png`; results are in `qa-artifacts/v5-playwright-results.json`. No user browser app or profile is used.
 
 ## Design provenance
 

@@ -1,4 +1,8 @@
-# Portfolio v3 follow-up — 10 November 2026
+# Portfolio E2E report — current V5
+
+**Current: V5 PASS, 1,213 words (Selected Work: 350).** See the V5 section and final E2E SUMMARY below for fresh counts, checks and screenshots. V3/V4 sections are preserved historical evidence; their content and cache-version descriptions describe those earlier revisions.
+
+## V3 follow-up — 10 November 2026
 
 The v3 design retains solution storytelling, connected career records, a small command interface and restrained motion. This follow-up applies the reference’s visual language while preserving the existing portfolio structure and factual case-study content. HTML, CSS and JavaScript remain original. No reference implementation, copy, images, illustrations or assets were copied or vendored.
 
@@ -218,7 +222,7 @@ Hidden-tab behavior is tested by overriding `document.hidden` and dispatching `v
 - `qa-artifacts/v4-390-light.png`, `qa-artifacts/v4-390-dark.png`.
 - `qa-artifacts/v4-1440-full-light.png` — 1440 × 12298, reviewed in seven consecutive crops outside the repo.
 
-All eight viewport screenshots are at the top of the page with DPR 1. Review confirmed the compact portrait, intact hairline, readable content over scenery, and retained downstream section layout. The dark scenery is intentionally faint. V3 screenshots and notes above are historical; the V4 files are the current evidence.
+All eight viewport screenshots are at the top of the page with DPR 1. Review confirmed the compact portrait, intact hairline, readable content over scenery, and retained downstream section layout. The dark scenery is intentionally faint. V3 screenshots and notes above are historical; the V4 files were the evidence for that revision. V5 evidence below supersedes them for the current page.
 
 ### Reproduction and limits
 
@@ -236,7 +240,7 @@ NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/pr
 
 No deployment, current external-link HTTP audit, production nested-404 routing, other browser engine, screen reader or physical-device testing was performed in V4. The supplied Learn links and local references are checked statically. The multiset of visible body-text tokens was compared to the saved v3 served HTML and is identical; only hero order changed. No new content, client identity or personal-project claims were introduced.
 
-## E2E SUMMARY
+## E2E SUMMARY — preserved v4 results
 
 - **Result:** V4 implemented and locally verified; 407 main and 12 supplemental headless browser assertions pass, plus 55 DOM assertions, 9 verifier regressions, HTML validation, JavaScript syntax and final content/privacy verification.
 - **Design:** original cloud/plane and twinkle/shooting-star backgrounds; teal-blue accent system; compact portrait rail plus separate credential/action band, with a horizontal identity card on phones.
@@ -245,3 +249,100 @@ No deployment, current external-link HTTP audit, production nested-404 routing, 
 - **Preservation:** factual content, privacy, Case Assistant first, AI & Copilot, all six product cards, five JSON-LD credentials, supplied Learn links, header-only CV and 100+ flows remain intact.
 - **Limits:** simulated hidden-document event; no production deployment/routing, new external-link audit, other engines, assistive technology, physical devices or formal accessibility certification.
 - **Repository/runtime:** no commit or `.git` access/modification; headless Chromium and test dependencies outside the repo; preview used only 8093; ports 8080 and 8765 untouched.
+
+
+## V5 — content trim, preserved V4 design — 11 November 2026
+
+**PASS: all requested local V5 checks completed.** The portfolio now has **1,213 words**, down from **2,038** (825 removed, about 40%). Selected Work is **350 words**. The v4 sky/navy palette, teal accents, glass cards, local Sora / Plus Jakarta Sans / JetBrains Mono fonts, portrait arrangement and theme-specific scenery remain.
+
+### Word counts
+
+| Section | Before | After |
+| --- | ---: | ---: |
+| Header | 15 | 15 |
+| Navigation / skip link | 12 | 12 |
+| Hero | 73 | 65 |
+| Metrics / experience divider | 46 | 46 |
+| 01 About | 188 | 115 |
+| 02 Selected work | 854 | 350 |
+| 03 Career | 241 | 189 |
+| 04 Power Platform | 265 | 206 |
+| 05 AI & Copilot | 157 | 41 |
+| 06 Credentials | 62 | 62 |
+| 07 Command line | 44 | 44 |
+| 08 Writing | 19 | 19 |
+| Education / languages (standalone) | 13 | 0 |
+| 09 Contact | 36 | 36 |
+| Footer | 13 | 13 |
+| **Total** | **2,038** | **1,213** |
+
+`scripts/word-count.py` counts body-text whitespace tokens after HTML parsing, excluding scripts, styles, SVG and aria-hidden decorative content. It retains the visible metric digits/suffixes. All disclosure content and both responsive menus are included, so collapsing a record or hiding a menu cannot reduce the editorial count. Symbols separated by spaces count as tokens. The baseline is the original index saved outside the repo before edits; both columns use the identical method. The first progress estimate excluded symbol tokens; the table uses the brief's stripped-text whitespace convention consistently. The count is independent of theme and viewport; dynamic terminal responses are tested separately and are not initial page text. Education/languages now count within About. Machine-readable evidence: `qa-artifacts/v5-word-counts.json`.
+
+### Content and layout changes
+
+- Case Assistant remains first among five Work cards, with problem, outcome, four short topic descriptions, security/audit context and tech. The long contribution list and other case-study disclosures were replaced with concise problem/outcome/tech text. No new metrics were introduced; other retained projects still describe their original work.
+- AI & Copilot now covers only the configured D365 Customer Service features: summaries with custom fields, draft email replies, knowledge-grounded answers with citations and similar-case matching. It links to the Case Assistant Work record. Its duplicate topic grid and credential links are removed.
+- Six Power Platform cards each have a distinct capability line. The automation card uses “Workflow automation”; the 100+ flows metric remains in the hero's metrics row, including accessible text, targets and no-JavaScript text.
+- The hero retains only “Architecture that holds up. Engineering that follows through.” Name, role, headshot, featured-work pointer, single plain PL-600 / linked AB-100 pair and CTAs remain. AB-100/AB-620 verification links remain in Credentials; PL-600 is never linked. Download CV remains once, in the header.
+- Education and languages sit within About. All five career employers, dates, roles and locations are retained with shorter responsibilities. Contact destinations and the terminal's real-fact commands remain. The terminal now directs credential verification to Credentials.
+- Layout adaptations: the shortened Copilot card has two columns of feature bullets on wider screens and one on phones, followed by its Work link. The moved education uses an h3 and matching typography/spacing within About. The four expertise panels remain balanced. No overflow, clipped portrait or other trim-related layout defect remained after visual review.
+- CSS/JS use `?v=13` in index, 404 bootstrap/noscript and the verifier.
+
+### Fresh checks
+
+| Check | V5 result |
+| --- | --- |
+| Static verifier | PASS: references, anchors, metadata, privacy, credential placement, tagline, education, word limits, six cards, terminal, background/reduced motion and v13 |
+| Verifier regressions | PASS: 18 assertions; broken content/privacy/motion/cache fixtures rejected and restored |
+| DOM interactions | PASS: 55 assertions, including updated terminal credential destination |
+| HTML and JavaScript | PASS: html-validate 10.17.0 on index/404; `node --check assets/js/main.js` |
+| Headless browser | PASS: 407 assertions; Chromium 158.0.8127.18; zero page/request errors |
+| Required viewports | PASS: 1440 × 900, 1280 × 900, 768 × 1024, 390 × 844; both themes; DPR 1 |
+| Layout and fonts | PASS: no horizontal overflow, loaded local fonts, headshot inside frame/top-aligned, expanded career records fit |
+| Theme | PASS: keyboard toggle, reload persistence, saved choice over system and unsaved system changes; matching scenery only |
+| Reduced motion | PASS: scenery hidden, no running animations, final 100+ visible; initial load and live changes in both themes |
+| Motion preservation | PASS: 5 light / 30 dark timelines; simulated hidden-document pause/resume; 0 px layout delta and observed initial CLS 0 in all eight samples |
+| Terminal | PASS: help, pac certs, pac contact, pac projects, pac copilot and clear at 1440/390 in both themes, plus reduced-motion mobile; privacy and safe text checked |
+| Other interactions | PASS: related career opens, clipboard copies actual email, valid CV PDF downloaded |
+| Contrast/accessibility | PASS: targeted text minima 4.55:1 in both themes; no reported axe A/AA violations in eight expanded samples |
+| Additional layouts / 404 | PASS: seven extra widths in both themes; explicit 404 at 1440/390 both themes, v13 assets and return navigation |
+| Preview identity | PASS: served index bytes match this checkout on 8093 |
+
+The targeted contrast model and its conservative scenery/gradient bounds are retained from V4. Axe still marks gradient contrast incomplete; visual review and compositing supplement it. Hidden-document testing overrides `document.hidden` and dispatches `visibilitychange`; OS-level tab hiding is not claimed. Repository-wide UTF-8 and filename scans prune `.git` before traversal. They found no private client identity, unsupported personal-project names or phone; the unchanged binary CV is outside the text scan.
+
+### Visual evidence and reproduction
+
+All eight required top-of-page DPR 1 screenshots were inspected: `qa-artifacts/v5-{1440,1280,768,390}-{light,dark}.png`. The full light capture, `qa-artifacts/v5-1440-full-light.png` (1440 × 10590), was inspected throughout via eight consecutive crops outside the repo. No text was reduced in size to meet the word target.
+
+Browser results are in `qa-artifacts/v5-playwright-results.json`. The browser runner, dependencies and browser cache are outside the repo in `/private/tmp/portfolio-v3-pw`; no repository `node_modules` was created. Reproduce with the plain preview on 8093:
+
+```sh
+python3 scripts/word-count.py
+python3 scripts/verify.py
+python3 scripts/test-verifier.py
+node --check assets/js/main.js
+NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
+npm exec --cache /private/tmp/portfolio-v3-pw/npm-cache --yes --package html-validate@10.17.0 -- html-validate index.html 404.html
+PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node /private/tmp/portfolio-v3-pw/v5-playwright-runner.cjs
+```
+
+The runner launches only headless Playwright Chromium with `--single-process --no-zygote`. No Google Chrome app/profile, connected browser or computer-use tool was used. The owned plain Python server remains available on `http://127.0.0.1:8093/`. Ports 8080 and 8765 were not used, stopped or modified. No commit, `.git` access/modification, deployment or source-directory edit occurred.
+
+## V5 star visibility (same trim, follow-up)
+
+The owner could not see dark-theme stars or shooting stars. Dark scenery was increased to **104 mixed-size stars** with a visible twinkle, and a brighter trail on a **12s cycle staggered by 6s** (one shooting star about every six seconds) that travels across the viewport, including after scrolling past the hero. The atmosphere layer uses `position:fixed; z-index:0` so it paints above the page wash and through gutters/sky, still below text and cards (`pointer-events: none`). Navy text backdrops keep contrast. Light-theme clouds/planes are unchanged. Reduced motion still hides all scenery.
+
+**Chromium:** pixel and timing checks confirmed dozens of visible stars in dark samples, twinkle over elapsed time, a bright moving trail, and stars still visible beyond the hero. Desktop dark capture `qa-artifacts/v5-1440-dark.png` was inspected and shows stars and a trail. Cache-busting is `?v=14`.
+
+**WebKit:** headless Playwright WebKit aborted before opening a page (macOS application-registration / crash). Those same visibility assertions exist in `scripts/test-browser.cjs` but were not obtained in WebKit. CSS/SVG was kept to portable features (no Chromium-only filters).
+
+The trim word count is unchanged at **1,213** (Selected Work 350). A later verifier false positive on a gitignored QA results timestamp was excluded from the phone-number scan; client-name and personal-project scans still cover QA text. The Codex follow-up then hit a usage limit (retry after 11:51 AM IST) while writing this note; the Chromium checks above had already passed.
+
+## E2E SUMMARY
+
+- **Result:** V5 complete locally: 2,038 → 1,213 words; Selected Work 854 → 350; AI & Copilot 157 → 41. Dark stars made clearly visible (104 mixed stars, six-second trails).
+- **Preservation:** v4 visuals/fonts/hero, all five Work and career records, six product cards, 100+ flows, required credentials, header-only CV, contact details and real-fact terminal commands.
+- **Validation:** trim suite 407 headless Chromium assertions, 55 DOM assertions and verifier regressions PASS; static/privacy scan, HTML validation and JS syntax PASS. Follow-up Chromium pixel/timing checks PASS for star visibility, twinkle and trails. Eight required themes/widths fit with intact portraits.
+- **Layout/evidence:** compact Copilot feature card and education in About; v5 screenshots plus an inspected dark desktop capture showing stars.
+- **Unverified:** Playwright WebKit (launch abort on this Mac), deployment, production nested-404 routing, current external-link availability, assistive technology and physical devices. No formal accessibility certification or OS-level hidden-tab test is claimed.
+- **Operations:** no commit or `.git` access during Codex runs; headless Chromium used; browser tools/cache outside repo; preview on 8093; ports 8080/8765 untouched.

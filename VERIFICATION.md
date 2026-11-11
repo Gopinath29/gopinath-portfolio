@@ -1,48 +1,45 @@
-# Portfolio v4 verification — 11 November 2026
+# Portfolio v5 verification — 11 November 2026
 
-**PASS: all requested local V4 acceptance checks are complete.** Detailed evidence, contrast tokens, fixes and preserved V3 notes are in [E2E_REPORT.md](E2E_REPORT.md).
+**PASS: requested local V5 acceptance checks complete.** The page has **1,213 words**, down from **2,038**; Selected Work is **350 words**. Full before/after section counts, screenshots and evidence are in [E2E_REPORT.md](E2E_REPORT.md#v5--content-trim-preserved-v4-design--11-november-2026).
 
 | Requirement | Current result |
 | --- | --- |
-| Original animated background | Light: three drifting clouds and two planes; dark: 28 twinkling stars and two occasional shooting trails; original SVG/CSS only |
-| Layering and performance | Fixed below content, pointer-transparent, no layout contribution; transform/opacity only; no JavaScript render loop |
-| Hero | Compact portrait rail, wide headline, separate credential/action band; horizontal portrait identity card on phones; top-aligned photo inside frame |
-| Accents | Light `#075d73` / ink `#064c60`; dark `#80ded5` / highlight `#73dbdf`; links, controls and focus updated |
-| Theme switching | Background and accent switch together, no inactive scene rendering; saved selection survives reload; unsaved system changes work |
-| Reduced motion | Entire scenery layer hidden and all animations removed, including initial load and live preference changes; final 100+ retained |
-| Hidden document | Simulated hidden/visibilitychange pauses every CSS timeline; measured times stop and advance again on resume |
-| Layout | No overflow at 1440/1280/768/390 in either theme, including expanded records; seven extra widths pass; 0 px delta against reduced-motion baseline |
-| Content and privacy | Case Assistant first, AI & Copilot, six product cards, five JSON-LD credentials, supplied Learn links, header-only CV, plain PL-600, 100+ flows; repository scan clear |
-| Terminal | help, pac certs, pac contact, pac projects, pac copilot, clear; browser keyboard tests in both themes and mobile reduced motion; output privacy checked |
-| Contrast | All text minimum 4.55:1 in both themes; links at least 4.70:1 light / 5.90:1 dark; tested UI boundaries at least 4.70:1 / 6.23:1 |
-| Accessibility | No reported axe A/AA violations in eight expanded index samples; gradient contrast remains incomplete in axe, supplemented by conservative compositing and visual review |
-| 404 | Shared scenery and v12 bootstrap work; local return link, no overflow and targeted contrast pass in both themes at 1440/390 |
-| Browser results | 407 main and 12 supplemental assertions PASS; zero page/request errors; headless Playwright Chromium 158.0.8127.18 |
-| Static checks | Verifier PASS; 9 verifier regressions; 55 DOM assertions; JavaScript syntax and HTML validation PASS |
-| Operations | No commit or `.git` operations; CSS/JS cache queries v12; dependencies outside repo; preview only 8093; ports 8080 and 8765 untouched |
+| Work | Case Assistant first, problem/outcome/four short topics/tech; four other real case studies retained; 350 words total |
+| AI & Copilot | Four configured D365 features, Work link, no repeated topics or credential verify links; 41 words |
+| Products | Six distinct capability lines; no 100+ repetition on Power Automate card |
+| Hero | One tagline, name/role/portrait/featured-work pointer, single plain PL-600 + linked AB-100 pair and CTAs |
+| Metrics / privacy | 100+ visible and accessible, including reduced motion/no JS; repo text and filename privacy scan PASS |
+| About / Career | Education/languages moved into About; same five employers, dates, roles and locations with concise responsibilities |
+| Credentials / CV | Supplied AB-100/AB-620 Learn links in Credentials; PL-600 unlinked; exactly one Download CV, in header |
+| V4 design | Sky/navy, teal accents, glass cards, local fonts, portrait arrangement and cloud/plane/star/shooting-star scenery retained |
+| Layout | Both themes at 1440/1280/768/390, DPR 1; no overflow or clipped headshot; expanded career records fit; seven extra widths pass |
+| Theme / motion | Toggle and persistence PASS; matching scene only; scenery off under reduced motion; final 100+ remains; simulated hidden timelines pause/resume |
+| Terminal | help, pac certs, pac contact, pac projects, pac copilot, clear PASS in both themes at desktop/mobile and reduced-motion mobile; privacy PASS |
+| Contrast / accessibility | Targeted text minimum 4.55:1 in both themes; zero reported axe A/AA violations across eight expanded samples |
+| Local 404 | v13 bootstrap/assets, theme/scenery, layout and return navigation PASS at 1440/390 both themes |
+| Tests | 407 browser assertions, 55 DOM assertions, 18 verifier regressions, static verifier, HTML validation and JavaScript syntax PASS |
+| Operations | No commit or .git access/modification; v13 CSS/JS; headless Playwright Chromium only; runner/dependencies/cache outside repo; preview 8093; other named ports untouched |
 
-## Evidence
+## Evidence and reproduction
 
-- `qa-artifacts/v4-playwright-results.json` — current browser results, contrast samples and pause/layout evidence.
-- `qa-artifacts/v4-motion-details.json` and `v4-motion-detail-runner.cjs` — animation-phase samples and all five final counter values.
-- `qa-artifacts/v4-playwright-runner.cjs` — reproducible headless runner using dependencies outside the repo.
-- `qa-artifacts/v4-{1440,1280,768,390}-{light,dark}.png` — eight DPR 1 top captures, all inspected.
-- `qa-artifacts/v4-1440-full-light.png` — full light page, 1440 × 12298, inspected throughout.
+- `qa-artifacts/v5-word-counts.json`: identical before/after counting method; all disclosure content and both responsive menus included.
+- `qa-artifacts/v5-playwright-results.json`: 407 browser assertions, contrast/layout/motion and interaction evidence.
+- `qa-artifacts/v5-{1440,1280,768,390}-{light,dark}.png`: eight DPR 1 top captures, visually inspected.
+- `qa-artifacts/v5-1440-full-light.png`: 1440 × 10590 full light page, inspected throughout.
+- `/private/tmp/portfolio-v3-pw/v5-playwright-runner.cjs`: current headless runner; Chromium cache and dependencies beside it, outside the repo.
 
-```sh
-python3 -m http.server 8093 --bind 127.0.0.1
-```
-
-In another terminal, with the cached dependencies available:
+With `python3 -m http.server 8093 --bind 127.0.0.1` serving this checkout:
 
 ```sh
+python3 scripts/word-count.py
 python3 scripts/verify.py
 python3 scripts/test-verifier.py
 node --check assets/js/main.js
 NODE_PATH=/private/tmp/portfolio-v3-test/node_modules node scripts/test-interactions.cjs
 npm exec --cache /private/tmp/portfolio-v3-pw/npm-cache --yes --package html-validate@10.17.0 -- html-validate index.html 404.html
-NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node qa-artifacts/v4-playwright-runner.cjs
-NODE_PATH=/private/tmp/portfolio-v3-pw/node_modules PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node qa-artifacts/v4-motion-detail-runner.cjs
+PLAYWRIGHT_BROWSERS_PATH=/private/tmp/portfolio-v3-pw/browsers node /private/tmp/portfolio-v3-pw/v5-playwright-runner.cjs
 ```
 
-Chromium launches headlessly with `--single-process --no-zygote`. No user Google Chrome app/profile or computer-use tool was used. The owned QA server was stopped after verification. Deployment, current external-link availability, production nested-404 routing, other engines, assistive technology and physical devices remain unverified. Hidden-tab testing is simulated; contrast verification is targeted and is not formal certification. Preserved V3 results in the report remain historical evidence.
+Chromium launches headlessly with `--single-process --no-zygote`; no user Google Chrome app/profile or computer-use tool was used. The owned preview remains on 8093; ports 8080 and 8765 were not used or stopped. Served index bytes match the checkout.
+
+Deployment, current external-link availability, production nested-404 routing, other engines, assistive technology and physical devices remain unverified. Hidden-document tests are simulated. Axe marks gradient contrast incomplete; conservative compositing and visual review supplement it, without formal accessibility certification. The unchanged binary CV is outside the UTF-8 privacy scan. Earlier V3/V4 report sections and artifacts are historical.

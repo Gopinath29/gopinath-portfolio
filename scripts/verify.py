@@ -9,6 +9,9 @@ import json
 import re
 import struct
 import sys
+import runpy
+
+count_words = runpy.run_path(str(Path(__file__).with_name("word-count.py")))["count_words"]
 
 ROOT = Path(__file__).resolve().parents[1]
 VERIFICATION_URLS = {
@@ -144,28 +147,68 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
         for topic in ('Find and summarise a case', 'Find case documents', 'Suggest next steps', 'Create a case'):
             if not work or topic not in work.group():
                 errors.append(f'{filename}: missing Case Assistant topic {topic}')
-        for fact in ('generative orchestration', 'general knowledge and web search turned off', 'Assistant Action', 'Completed or Failed', '10 knowledge articles', 'test-case load', 'ALM runbook', 'Power Fx', 'PAC CLI', 'PowerShell', 'Azure DevOps/Git'):
+        for fact in ('Power Fx', 'PAC CLI', 'PowerShell', 'Azure DevOps/Git'):
             if not work or fact not in work.group():
-                errors.append(f'{filename}: missing Case Assistant delivery fact {fact}')
+                errors.append(f'{filename}: missing Case Assistant technology {fact}')
+        if work and 'contribution-list' in work.group():
+            errors.append(f'{filename}: remove the long contribution list')
         copilot = re.search(r'<section[^>]*id="copilot".*?</section>', html, re.S)
         ai_text = unescape(copilot.group() if copilot else '')
-        for fact in ('AI & Copilot', 'Find and summarise a case', 'Find case documents', 'Suggest next steps', 'Create a case', 'Case summaries that include custom fields', 'Draft email replies', 'Knowledge-grounded answers with citations', 'Similar-case matching', 'AB-100', 'AB-620'):
+        for fact in ('AI & Copilot', 'Dynamics 365 Customer Service', 'Case summaries that include custom fields', 'Draft email replies', 'Knowledge-grounded answers with citations', 'Similar-case matching'):
             if fact not in ai_text:
                 errors.append(f'{filename}: missing AI & Copilot fact {fact}')
+        if 'href="#case-assistant"' not in ai_text:
+            errors.append(f'{filename}: AI & Copilot must link to Case Assistant work')
+        if any(url in ai_text for url in VERIFICATION_URLS.values()):
+            errors.append(f'{filename}: AI & Copilot must not repeat credential verify links')
+        for topic in ('Find and summarise a case', 'Find case documents', 'Suggest next steps', 'Create a case'):
+            if topic in ai_text:
+                errors.append(f'{filename}: AI & Copilot must not repeat Work topics')
+        credentials_section = re.search(r'<section[^>]*id="certifications".*?</section>', html, re.S)
         for url in VERIFICATION_URLS.values():
-            if url not in ai_text:
-                errors.append(f'{filename}: missing AI & Copilot credential link')
+            if not credentials_section or url not in credentials_section.group():
+                errors.append(f'{filename}: Credentials must retain supplied Learn links')
+        if sum(link['href'] == VERIFICATION_URLS['AB-100'] for link in page.credential_links) != 2 or sum(link['href'] == VERIFICATION_URLS['AB-620'] for link in page.credential_links) != 1:
+            errors.append(f'{filename}: credential verify links belong only in hero and Credentials')
+        hero_text = unescape(re.sub(r'<[^>]+>', ' ', hero.group() if hero else ''))
+        hero_text = re.sub(r'\s+', ' ', hero_text)
+        if hero_text.count('Architecture that holds up. Engineering that follows through.') != 1:
+            errors.append(f'{filename}: hero must retain its single strongest tagline')
+        for dropped in ('Design authority.', 'Hands-on delivery.', 'Solution architecture. Personal ownership.'):
+            if dropped in hero_text:
+                errors.append(f'{filename}: redundant hero tagline remains')
+        about = re.search(r'<section[^>]*id="about".*?</section>', html, re.S)
+        about_text = unescape(about.group() if about else '')
+        for fact in ('Education', 'Languages', 'B.Tech, Information Technology', 'Kongu Engineering College', '2009–2013', 'English', 'Professional', 'Tamil', 'Native'):
+            if fact not in about_text:
+                errors.append(f'{filename}: About must contain education/languages fact {fact}')
+        counts = count_words(html)
+        if not 1100 <= counts['total'] <= 1300:
+            errors.append(f'{filename}: total word count must be 1100–1300')
+        if not 320 <= counts['sections'].get('work', 0) <= 380:
+            errors.append(f'{filename}: Work must be about 350 words (320–380)')
         if not work or 'a regulatory body' not in unescape(work.group()):
             errors.append(f'{filename}: featured client must be described as a regulatory body')
+        cards = re.findall(r'<article class="platform-card.*?</article>', html, re.S)
+        if len(cards) != 6:
+            errors.append(f'{filename}: expected exactly six product cards')
         for product in ('Case Assistant', 'Power Automate', 'Dataverse', 'Dynamics 365 Customer Service', 'Power Apps', 'Power Pages'):
-            if not re.search(r'class="platform-card[^>]*>.*?<h3>' + re.escape(product) + r'</h3>.*?class="product-call"', html, re.S):
+            matching = [card for card in cards if '<h3>' + product + '</h3>' in card]
+            if len(matching) != 1 or 'class="product-call"' not in matching[0]:
                 errors.append(f'{filename}: missing supported product card with illustrative call: {product}')
+            if product == 'Power Automate' and matching and '100+' in matching[0]:
+                errors.append(f'{filename}: Power Automate card must not repeat 100+')
+        capability_lines = [re.findall(r'<p>(.*?)</p>', card, re.S) for card in cards]
+        if any(len(lines) != 1 for lines in capability_lines) or len({lines[0] for lines in capability_lines if lines}) != 6:
+            errors.append(f'{filename}: product cards need six distinct capability lines')
         if 'data-terminal' not in html or 'id="terminal-command"' not in html or 'role="log"' not in html:
             errors.append(f'{filename}: missing accessible terminal widget')
         javascript = (ROOT / 'assets/js/main.js').read_text()
-        for command in ('help', 'pac certs', 'pac contact', 'pac projects'):
+        for command in ('help', 'pac certs', 'pac contact', 'pac projects', 'pac copilot'):
             if "'" + command + "'" not in javascript:
                 errors.append(f'{filename}: missing terminal command {command}')
+        if 'verify links in AI & Copilot' in javascript:
+            errors.append(f'{filename}: terminal must point credential verification to Credentials')
         if len(re.findall(r'class="solution-card(?: [^\"]*)?"', work.group() if work else '')) != 5:
             errors.append(f'{filename}: expected featured solution and four retained case studies')
         expected_headshot = {
@@ -181,16 +224,16 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
     if filename == '404.html':
         # The 404 bootstrap requests assets only after resolving its project base.
         for value in re.findall(r"(?:stylesheet\.href|script\.src|icon\.href)\s*=\s*['\"]([^'\"]+)['\"]", html):
-            page.references.append(('script' if value.endswith('.js?v=12') else 'link', 'src' if value.endswith('.js?v=12') else 'href', value))
+            page.references.append(('script' if value.endswith('.js?v=14') else 'link', 'src' if value.endswith('.js?v=14') else 'href', value))
             checked += 1
             if not (ROOT / urlsplit(value).path).is_file():
                 errors.append(f'{filename}: missing bootstrap asset {value}')
-        if "script.src = 'assets/js/main.js?v=12'" not in html:
-            errors.append(f'{filename}: expected v=12 bootstrap JavaScript')
+        if "script.src = 'assets/js/main.js?v=14'" not in html:
+            errors.append(f'{filename}: expected v=14 bootstrap JavaScript')
     for tag, attr, value in page.references:
         if (tag, attr) in (('link', 'href'), ('script', 'src')) and urlsplit(value).path in ('assets/css/styles.css', 'assets/js/main.js'):
-            if urlsplit(value).query != 'v=12':
-                errors.append(f'{filename}: expected v=12 cache-busting for {value}')
+            if urlsplit(value).query != 'v=14':
+                errors.append(f'{filename}: expected v=14 cache-busting for {value}')
     for schema in page.schemas:
         if schema.get('@type') != 'Person' or 'telephone' in schema:
             errors.append(f'{filename}: incorrect Person metadata')
@@ -207,6 +250,18 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
 css = (ROOT / 'assets/css/styles.css').read_text()
 if not re.search(r'@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\.atmosphere\{display:none!important', css):
     errors.append('Background must be fully disabled under reduced motion')
+
+# The browser suite additionally checks pixels and elapsed animation time.
+javascript = (ROOT / 'assets/js/main.js').read_text()
+star_count = re.search(r'for \(let i = 0; i < (\d+); i\+\+\)', javascript)
+if not star_count or not 80 <= int(star_count.group(1)) <= 120:
+    errors.append('Dark scenery must create 80–120 stars')
+if '--star-size' not in javascript or '--star-size' not in css:
+    errors.append('Dark scenery must keep mixed star sizes')
+if not re.search(r'\.atmosphere\{[^}]*z-index:0;', css):
+    errors.append('Background must paint above the page wash')
+if 'animation:shoot 12s' not in css or 'animation-delay:-6.55s' not in css:
+    errors.append('Dark shooting trails must retain their six-second stagger')
 
 # Construct private-number signatures without placing them in public source.
 private_signatures = [bytes((57, 53, 54, 54)), bytes((43, 57, 49))]
@@ -241,7 +296,8 @@ for directory, directories, filenames in os.walk(ROOT):
             errors.append(f'{relative}: unsupported personal project found')
         if any(signature in data for signature in private_signatures):
             errors.append(f'{relative}: private contact signature found')
-        if any(10 <= sum(char.isdigit() for char in match.group()) <= 15 for match in phone_pattern.finditer(content)):
+        # Skip gitignored QA JSON (animation timings look like phone numbers). Still scan those files for client/product names.
+        if 'qa-artifacts' not in relative.parts and any(10 <= sum(char.isdigit() for char in match.group()) <= 15 for match in phone_pattern.finditer(content)):
             errors.append(f'{relative}: phone-like number found')
 
 headshot = ROOT / 'assets/img/headshot.jpg'
@@ -259,4 +315,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; header-only CV; 100+ flows; Case Assistant first; AI & Copilot facts and credentials; six supported product cards; accessible terminal; decorative background and reduced motion; v=12 assets; {text_count} UTF-8 files scanned; private client name and filename scan clear; published personal-project scan clear; phone privacy clear.')
+print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=14 assets; {text_count} UTF-8 files scanned; private client name and filename scan clear; published personal-project scan clear; phone privacy clear.')

@@ -25,6 +25,9 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
   for (const reduced of [false, true]) {
     const p = page({reduced}); const {w,doc}=p;
     const input=doc.querySelector('#terminal-command'),form=doc.querySelector('.terminal-form'),out=doc.querySelector('.terminal-output');
+    check(()=>assert.equal(doc.querySelectorAll('.star').length,104));
+    check(()=>assert.equal(new Set([...doc.querySelectorAll('.star')].map(e=>e.style.getPropertyValue('--star-size'))).size,3));
+    check(()=>assert.equal(doc.querySelector('.atmosphere').hidden,reduced));
     function run(command){input.value=command;form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));return out.lastElementChild?.textContent.trimEnd();}
     check(()=>assert.match(run('help'), /pac certs[\s\S]*pac contact[\s\S]*pac projects[\s\S]*clear/));
     check(()=>assert.ok(out.textContent.includes('explore. › help ')));
@@ -34,7 +37,7 @@ function page({stored, dark = false, storageFailure = false, clipboardFailure = 
     const projects=run('pac projects').split('\n');
     check(()=>assert.equal(projects[0],'Case Assistant'));
     check(()=>assert.equal(projects.length,6));
-    check(()=>assert.match(run('pac copilot'), /AI & Copilot[\s\S]*Find and summarise a case[\s\S]*AB-100 · AB-620/));
+    check(()=>assert.match(run('pac copilot'), /AI & Copilot[\s\S]*Find and summarise a case[\s\S]*AB-100 · AB-620[\s\S]*Credentials \(#certifications\)/));
     check(()=>assert.match(run('  PAC   CONTACT '), /itiangopi@gmail.com/));
     check(()=>assert.equal(doc.activeElement,input));
     check(()=>assert.equal(input.value,''));

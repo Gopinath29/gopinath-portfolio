@@ -19,13 +19,15 @@
   const starField = atmosphere?.querySelector('.star-field');
   if (starField) {
     const stars = document.createDocumentFragment();
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 104; i++) {
       const star = document.createElement('span');
       star.className = 'star';
-      star.style.left = `${(i * 37 + 7) % 100}%`;
-      star.style.top = `${(i * 23 + 3) % 100}%`;
-      star.style.animationDelay = `${-(i % 9)}s`;
-      star.style.animationDuration = `${5 + i % 6}s`;
+      // Jitter a 13 × 8 grid so every viewport has an even, varied sky.
+      star.style.left = `${((i % 13) + .15 + ((i * 7) % 11) / 16) / 13 * 100}%`;
+      star.style.top = `${(Math.floor(i / 13) + .15 + ((i * 3) % 7) / 12) / 8 * 100}%`;
+      star.style.setProperty('--star-size', `${i % 7 === 0 ? 4 : i % 3 === 0 ? 3 : 2}px`);
+      star.style.animationDelay = `${-(i * 1.7 % 11)}s`;
+      star.style.animationDuration = `${3 + i % 5}s`;
       stars.append(star);
     }
     starField.append(stars);
@@ -104,7 +106,7 @@
     'pac certs': certifications.join('\n') + '\nAlso: MB2-707 · MB2-715 · MB2-716 · MB2-718 · ICAgile Fundamentals',
     'pac contact': 'Email: itiangopi@gmail.com\nLinkedIn: https://www.linkedin.com/in/gopinath-gurusamy',
     'pac projects': projects.join('\n') + '\nAI & Copilot: #copilot (pac copilot)',
-    'pac copilot': 'AI & Copilot — #copilot\nCase Assistant: Copilot Studio agent for Dynamics 365 Customer Service\nClient: a regulatory body\nFind and summarise a case\nFind case documents\nSuggest next steps\nCreate a case\nD365 Copilot: case summaries including custom fields; draft email replies; knowledge-grounded answers with citations; similar-case matching.\nAB-100 · AB-620 — verify links in AI & Copilot.'
+    'pac copilot': 'AI & Copilot — #copilot\nCase Assistant: Copilot Studio agent for Dynamics 365 Customer Service\nClient: a regulatory body\nFind and summarise a case\nFind case documents\nSuggest next steps\nCreate a case\nD365 Copilot: case summaries including custom fields; draft email replies; knowledge-grounded answers with citations; similar-case matching.\nAB-100 · AB-620 — verify links in Credentials (#certifications).'
   };
   form.addEventListener('submit', event => {
     event.preventDefault();
