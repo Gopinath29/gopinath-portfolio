@@ -147,6 +147,23 @@ async function stars(p,width,theme){
  results.starVisibility??=[];results.starVisibility.push({width,theme,stars:field.count,inViewport:positions.length,pixelVisibleStars:visible.length,peakStarDifference:Math.max(...visible.map(v=>v.peak)),twinkleObserved:true,trail:pixelTrail,trailPeriodMs:6000,fixedBeyondHero:true,pixelStarsBeyondHero,trailSamples});
 }
 
+async function rockets(p){
+ check(await p.locator('.sky-light .sky-rocket').count()===2,'two light rockets');
+ check(await p.locator('.sky-plane').count()===0,'planes removed');
+ check(await p.locator('.sky-light .cloud').count()===3,'three clouds retained');
+ const sample=()=>p.locator('.sky-rocket').evaluateAll(es=>es.map(e=>{
+  const style=getComputedStyle(e),r=e.getBoundingClientRect();
+  return {x:r.x,opacity:+style.opacity,flight:e.getAnimations()[0]?.animationName,puffs:[...e.querySelectorAll('.smoke-puff')].map(p=>({transform:getComputedStyle(p).transform,opacity:getComputedStyle(p).opacity,animation:p.getAnimations()[0]?.animationName})),flame:{opacity:getComputedStyle(e.querySelector('.rocket-flame')).opacity,animation:e.querySelector('.rocket-flame').getAnimations()[0]?.animationName},nose:e.querySelector('.rocket-nose').getBoundingClientRect().x,nozzle:e.querySelector('.rocket-nozzle').getBoundingClientRect().x};
+ }));
+ const before=await sample();await p.waitForTimeout(350);const after=await sample();
+ check(after.every(r=>r.flight==='rocket-flight'&&r.opacity>0&&r.opacity<=.3&&r.nose>r.nozzle),'subtle rockets point along flight');
+ check(after.every((r,i)=>r.x>before[i].x),'both rockets fly with elapsed time');
+ check(after.every(r=>r.puffs.length===5&&r.puffs.every(s=>s.animation==='smoke-drift')&&r.flame.animation==='flame-flicker'),'each rocket animates five puffs and a flame');
+ check(after.every((r,i)=>r.puffs.every((s,j)=>s.transform!==before[i].puffs[j].transform&&s.opacity!==before[i].puffs[j].opacity)),'both smoke trails drift and fade with elapsed time');
+ check(after.every((r,i)=>r.flame.opacity!==before[i].flame.opacity),'both nozzle flames flicker with elapsed time');
+ results.rockets??=[];results.rockets.push({page:new URL(p.url()).pathname,width:p.viewportSize().width,before,after});
+}
+
 async function launch(){browser=await engine.launch({headless:true,...(engine===chromium?{args:['--single-process','--no-zygote']}:{})});results.browserVersion=browser.version();return browser;}
 async function close(){await browser.close();browser=null;}
 (async()=>{
@@ -158,7 +175,9 @@ async function close(){await browser.close();browser=null;}
   await wordmark(p);
   const s=await measure(p);results.samples.push(s);if(theme==='dark')await stars(p,width,theme);
   check(s.theme===theme,'theme follows system');check(s.scene===theme,'background follows theme');check(s.state==='running','motion enabled');check(s.activeScene.length===1&&s.activeScene[0]==='sky-'+theme,'one visible scene');check(!s.overflow,`${width} ${theme} overflow`);check(s.fonts.every(Boolean),'fonts loaded');check(s.portrait.loaded&&s.portrait.inside&&s.portrait.objectPosition==='50% 0%','portrait fits and preserves top');check(s.flow==='100+','final metric');check(s.contrast.failures.length===0,'all text AA '+JSON.stringify(s.contrast.failures));check(s.contrast.ui.every(u=>u.ratio>=3),'UI contrast');
-  check(theme==='dark'?s.animations.some(a=>a.name==='twinkle')&&s.animations.some(a=>a.name==='shoot'):s.animations.some(a=>a.name==='cloud-drift')&&s.animations.some(a=>a.name==='plane-flight'),'correct active animations');
+  check(theme==='dark'?s.animations.some(a=>a.name==='twinkle')&&s.animations.some(a=>a.name==='shoot'):s.animations.some(a=>a.name==='cloud-drift')&&['rocket-flight','smoke-drift','flame-flicker'].every(name=>s.animations.some(a=>a.name===name)),'correct active animations');
+  check(s.animations.every(a=>theme==='light'?!['twinkle','shoot'].includes(a.name):!['cloud-drift','rocket-flight','smoke-drift','flame-flicker'].includes(a.name)),'inactive scene has no rendered animations');
+  if(theme==='light')await rockets(p);
   if(theme==='light')await p.screenshot({path:path.join(dest,`v5-${engine===webkit?'webkit-':''}${width}-${theme}.png`),animations:'allow'});if(width===1440&&theme==='light')await p.screenshot({path:path.join(dest,`v5-${engine===webkit?'webkit-':''}1440-full-light.png`),fullPage:true});
   const initial=await p.evaluate(()=>({shifts:window.motionShifts.length,sum:window.motionShifts.reduce((a,b)=>a+b,0)}));await p.waitForTimeout(250);
   await p.emulateMedia({reducedMotion:'reduce'});await p.waitForFunction(()=>document.querySelector('.atmosphere').dataset.state==='disabled');const reduced=await measure(p);let maxDelta=0;for(const key in s.rects)for(let i=0;i<4;i++)maxDelta=Math.max(maxDelta,Math.abs(s.rects[key][i]-reduced.rects[key][i]));
@@ -189,6 +208,6 @@ async function close(){await browser.close();browser=null;}
  await launch();const p=await browser.newPage({viewport:{width:1440,height:900},colorScheme:'light'});await p.goto(url,{waitUntil:'networkidle'});await p.emulateMedia({colorScheme:'dark'});await p.waitForFunction(()=>document.documentElement.dataset.theme==='dark');check(await p.locator('.atmosphere').getAttribute('data-scene')==='dark','unsaved system dark scene');await p.emulateMedia({colorScheme:'light'});await p.waitForFunction(()=>document.documentElement.dataset.theme==='light');check(await p.locator('.atmosphere').getAttribute('data-scene')==='light','unsaved system light scene');
  for(const width of [320,360,650,960,1000,1100,1200])for(const theme of ['light','dark']){await p.setViewportSize({width,height:900});await p.emulateMedia({colorScheme:theme});await p.waitForFunction(t=>document.documentElement.dataset.theme===t,theme);check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`extra ${width} ${theme} overflow`);}
  for(const width of [1440,390]){await p.setViewportSize({width,height:900});await p.goto(url+'#career-codec',{waitUntil:'networkidle'});check(await p.locator('#career-codec details').evaluate(e=>e.open),'initial Codec hash opens record');await p.evaluate(()=>{location.hash='career-bank';});await p.waitForFunction(()=>document.querySelector('#career-bank details').open);check(await p.locator('#career-bank details').evaluate(e=>e.open),'hashchange opens career record');}
- for(const theme of ['light','dark']){await p.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await p.setViewportSize({width,height:900});await p.goto(url+'404.html',{waitUntil:'networkidle'});await ready(p);await wordmark(p,false);const s=await measure(p);check(!s.overflow,'404 overflow');check(s.scene===theme,'404 scene');check(s.contrast.failures.length===0,'404 contrast');await p.getByRole('link',{name:/Back to portfolio/}).click();check(await p.locator('#hero-title').count()===1,'404 return');}}
+ for(const theme of ['light','dark']){await p.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await p.setViewportSize({width,height:900});await p.goto(url+'404.html',{waitUntil:'networkidle'});await ready(p);await wordmark(p,false);const s=await measure(p);check(!s.overflow,'404 overflow');check(s.scene===theme,'404 scene');if(theme==='light')await rockets(p);check(s.contrast.failures.length===0,'404 contrast');await p.getByRole('link',{name:/Back to portfolio/}).click();check(await p.locator('#hero-title').count()===1,'404 return');}}
  await close();check(results.errors.length===0,'no page/request errors');results.status='PASS';results.checks=checks;writeFileSync(path.join(dest,`v5-stars-${engine.name()}-results.json`),JSON.stringify(results,(_k,v)=>typeof v==='number'?Math.round(v*100)/100:v,2));console.log(JSON.stringify({status:results.status,checks,samples:results.samples.length,motion:results.motion,errors:results.errors},null,2));
 })().catch(async e=>{results.status=engine===webkit&&!results.browserVersion?'BLOCKED':'FAIL';results.failure=e.message;results.checks=checks;writeFileSync(path.join(dest,`v5-stars-${engine.name()}-results.json`),JSON.stringify(results,(_k,v)=>typeof v==='number'?Math.round(v*100)/100:v,2));console.error(e);if(browser)await close();process.exitCode=1;});

@@ -1,5 +1,13 @@
 # Portfolio v5 verification — 11 November 2026
 
+## Light-theme rocket follow-up
+
+Home and 404 now use two original small SVG rockets with five fading smoke puffs and a flickering nozzle flame each. The three clouds, dark scene, new-tab links and CV query remain intact. CSS/JS use `?v=18`. Scenery remains decorative, fixed, pointer-transparent and behind content; reduced motion hides it, inactive scenes do not render, and hidden-document timelines pause and resume.
+
+The complete local suite passed: word count (1,243 total, 350 Work), static/privacy verifier, 44 verifier regressions, JavaScript syntax, HTML validation, 242 DOM assertions, 909 external-runner assertions and 961 repository browser assertions. Both headless Chromium suites covered both themes at 1440/1280/768/390, seven extra widths, reduced motion, simulated hidden-document pause/resume, accessibility, new-tab behaviour, terminal interactions and home/404 navigation. Rocket checks confirm flight direction, elapsed-time smoke drift/fading and flame flicker on both pages. No page/request errors or motion-related layout shifts were reported; text contrast minimum remains 4.55:1. The repository suite also retained dark-star and shooting-trail pixel checks.
+
+The visually inspected desktop screenshot is `/Users/gopinathgurusamy/portfolio-burst/logs/portfolio-rockets-light.png`. Only browser animation time was sought and paused for this still; production delays and opacity were preserved. A screenshot comparison confirms visible smoke pixels behind the rocket. Results remain in `qa-artifacts/v5-playwright-results.json` and `qa-artifacts/v5-stars-chromium-results.json`; run logs and screenshot evidence are outside the repo in `portfolio-burst/logs/rockets-*.log` and `rockets-screenshot-evidence.json`. No user Chrome app/profile was used. Earlier evidence below describes prior revisions; deployment and production routing are not asserted by these local checks.
+
 **PASS: requested local V5 acceptance checks complete.** The page has **1,211 words**, down from **2,038**; Selected Work is **350 words**. The GG follow-up removes two header words. Full section counts, screenshots and evidence are in [E2E_REPORT.md](E2E_REPORT.md).
 
 | Requirement | Current result |

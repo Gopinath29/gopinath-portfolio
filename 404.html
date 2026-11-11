@@ -21,18 +21,18 @@
     document.head.append(icon);
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'assets/css/styles.css?v=17';
+    stylesheet.href = 'assets/css/styles.css?v=18';
     document.head.append(stylesheet);
     document.addEventListener('DOMContentLoaded', () => {
       if (location.pathname.startsWith('/gopinath-portfolio/')) {
         document.querySelector('.skip-link').href = location.pathname + '#main';
       }
       const script = document.createElement('script');
-      script.src = 'assets/js/main.js?v=17';
+      script.src = 'assets/js/main.js?v=18';
       document.head.append(script);
     });
   </script>
-  <noscript><link rel="icon" href="favicon.svg" type="image/svg+xml"> <link rel="stylesheet" href="assets/css/styles.css?v=17"></noscript>
+  <noscript><link rel="icon" href="favicon.svg" type="image/svg+xml"> <link rel="stylesheet" href="assets/css/styles.css?v=18"></noscript>
 </head>
 <body>
 <div class="atmosphere" aria-hidden="true" data-state="paused">
@@ -40,8 +40,24 @@
     <svg class="cloud cloud-one" viewBox="0 0 240 90"><path d="M30,78C-2,78-4,43,25,39C21,10,64,2,80,25C98-9,151-1,159,31C192,11,217,36,208,53C246,51,250,78,215,78Z" fill="currentColor"/></svg>
     <svg class="cloud cloud-two" viewBox="0 0 240 90"><path d="M22,78C-6,71,2,39,29,41C26,7,76,4,87,30C106,1,147,11,153,37C182,16,212,34,208,54C246,48,252,78,216,78Z" fill="currentColor"/></svg>
     <svg class="cloud cloud-three" viewBox="0 0 240 90"><path d="M30,78C-2,78-4,43,25,39C21,10,64,2,80,25C98-9,151-1,159,31C192,11,217,36,208,53C246,51,250,78,215,78Z" fill="currentColor"/></svg>
-    <svg class="sky-plane plane-one" viewBox="0 0 80 40"><path d="m4,19,26-2L19,3l7-1,24,14,20-1q9,0,9,4t-9,4l-20-1-24,14-7-1,11-14-17,2-6,6-5-1,4-8-4-8,5-1Z" fill="currentColor"/></svg>
-    <svg class="sky-plane plane-two" viewBox="0 0 80 40"><path d="m4,19,26-2L19,3l7-1,24,14,20-1q9,0,9,4t-9,4l-20-1-24,14-7-1,11-14-17,2-6,6-5-1,4-8-4-8,5-1Z" fill="currentColor"/></svg>
+    <svg class="sky-rocket rocket-one" viewBox="0 0 80 40">
+      <g class="rocket-smoke"><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/></g>
+      <path class="rocket-flame" d="M14 16Q1 15-9 20Q1 25 14 24Z"/>
+      <path class="rocket-fins" d="M18 14 9 5 31 11 31 29 9 35 18 26Z"/>
+      <path class="rocket-body" d="M16 13Q48 4 67 13L78 20 67 27Q48 36 16 27Z"/>
+      <path class="rocket-nose" d="M64 12Q72 15 78 20Q72 25 64 28Z"/>
+      <circle class="rocket-window" cx="49" cy="20" r="5"/>
+      <path class="rocket-nozzle" d="M14 15H19V25H14Z"/>
+    </svg>
+    <svg class="sky-rocket rocket-two" viewBox="0 0 80 40">
+      <g class="rocket-smoke"><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/><circle class="smoke-puff" cx="10" cy="20" r="5"/></g>
+      <path class="rocket-flame" d="M14 16Q1 15-9 20Q1 25 14 24Z"/>
+      <path class="rocket-fins" d="M18 14 9 5 31 11 31 29 9 35 18 26Z"/>
+      <path class="rocket-body" d="M16 13Q48 4 67 13L78 20 67 27Q48 36 16 27Z"/>
+      <path class="rocket-nose" d="M64 12Q72 15 78 20Q72 25 64 28Z"/>
+      <circle class="rocket-window" cx="49" cy="20" r="5"/>
+      <path class="rocket-nozzle" d="M14 15H19V25H14Z"/>
+    </svg>
   </div>
   <div class="sky-dark"><div class="star-field"></div><span class="shooting-star shooting-one"></span><span class="shooting-star shooting-two"></span></div>
 </div>

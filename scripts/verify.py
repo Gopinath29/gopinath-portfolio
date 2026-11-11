@@ -249,19 +249,27 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
 
         if not re.search(r'<div class="atmosphere"[^>]*aria-hidden="true"', html):
             errors.append(f'{filename}: missing decorative background layer')
+        light_scene = re.search(r'<div class="sky-light">(.*?)</div>', html, re.S)
+        rockets = re.findall(r'<svg class="sky-rocket rocket-(?:one|two)"[^>]*>(.*?)</svg>', light_scene.group(1), re.S) if light_scene else []
+        if len(rockets) != 2 or 'sky-plane' in html:
+            errors.append(f'{filename}: light scenery must have two rockets and no planes')
+        if len(rockets) != 2 or any('class="rocket-smoke"' not in rocket or rocket.count('class="smoke-puff"') != 5 or 'class="rocket-flame"' not in rocket for rocket in rockets):
+            errors.append(f'{filename}: each rocket needs five smoke puffs and a nozzle flame')
+        if not light_scene or len(re.findall(r'<svg class="cloud ', light_scene.group(1))) != 3:
+            errors.append(f'{filename}: light scenery must keep three clouds')
     if filename == '404.html':
         # The 404 bootstrap requests assets only after resolving its project base.
         for value in re.findall(r"(?:stylesheet\.href|script\.src|icon\.href)\s*=\s*['\"]([^'\"]+)['\"]", html):
-            page.references.append(('script' if value.endswith('.js?v=17') else 'link', 'src' if value.endswith('.js?v=17') else 'href', value))
+            page.references.append(('script' if value.endswith('.js?v=18') else 'link', 'src' if value.endswith('.js?v=18') else 'href', value))
             checked += 1
             if not (ROOT / urlsplit(value).path).is_file():
                 errors.append(f'{filename}: missing bootstrap asset {value}')
-        if "script.src = 'assets/js/main.js?v=17'" not in html:
-            errors.append(f'{filename}: expected v=17 bootstrap JavaScript')
+        if "script.src = 'assets/js/main.js?v=18'" not in html:
+            errors.append(f'{filename}: expected v=18 bootstrap JavaScript')
     for tag, attr, value in page.references:
         if (tag, attr) in (('link', 'href'), ('script', 'src')) and urlsplit(value).path in ('assets/css/styles.css', 'assets/js/main.js'):
-            if urlsplit(value).query != 'v=17':
-                errors.append(f'{filename}: expected v=17 cache-busting for {value}')
+            if urlsplit(value).query != 'v=18':
+                errors.append(f'{filename}: expected v=18 cache-busting for {value}')
     for schema in page.schemas:
         if schema.get('@type') != 'Person' or 'telephone' in schema:
             errors.append(f'{filename}: incorrect Person metadata')
@@ -278,6 +286,9 @@ for html_file in sorted(file for file in repository_files() if file.suffix == '.
 css = (ROOT / 'assets/css/styles.css').read_text()
 if not re.search(r'@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\.atmosphere\{display:none!important', css):
     errors.append('Background must be fully disabled under reduced motion')
+for animation in ('rocket-flight', 'smoke-drift', 'flame-flicker'):
+    if f'@keyframes {animation}' not in css or f'animation:{animation} ' not in css:
+        errors.append(f'Light rockets must animate {animation}')
 
 # The browser suite additionally checks pixels and elapsed animation time.
 javascript = (ROOT / 'assets/js/main.js').read_text()
@@ -362,4 +373,4 @@ else:
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; accessible GG headers; five closed native career records; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=17 assets; {text_count} UTF-8 files and {pdf_count} PDFs scanned; private client name and filename scan clear; published personal-project scan clear; text and PDF phone privacy clear.')
+print(f'PASS: {checked} local references; anchors; Learn links; five JSON-LD credentials; headshot; social PNG; accessible GG headers; five closed native career records; header-only CV; 100+ flows; Case Assistant first; AI & Copilot features and work link; credential placement; single tagline; education/languages in About; word limits; six supported product cards; accessible terminal; 104 mixed stars; six-second trails; decorative background and reduced motion; v=18 assets; {text_count} UTF-8 files and {pdf_count} PDFs scanned; private client name and filename scan clear; published personal-project scan clear; text and PDF phone privacy clear.')
